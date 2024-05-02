@@ -8,11 +8,11 @@ on top of the current file.
 
 adds three commented lines on top of the current file like:
 
-> file: /home/cs/files/src/git/insgitheader.nvim/README.md
+> -- file: /home/cs/files/src/insgitheader.nvim/lua/insgitheader/init.lua
 >
-> git: /home/cs/files/src/git/insgitheader.nvim
+> -- git: /home/cs/files/src/insgitheader.nvim
 >
-> author: Christian Schult <cschult@example.com> 2024
+> -- author: Christian Schult <cschult@example.com> 2024
 
 
 ## Installation
