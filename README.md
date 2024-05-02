@@ -9,8 +9,8 @@ on top of the current file.
 adds three commented lines on top of the current file like:
 
 > file: /home/cs/Dateien/src/git/insgitheader.nvim/README.md
-> git: /home/cs/Dateien/src/git/insgitheader.nvim
-> author: Christian Schult <cschult@devmem.de> 2024
+git: /home/cs/Dateien/src/git/insgitheader.nvim
+author: Christian Schult <cschult@devmem.de> 2024
 
 Install the theme with your preferred package manager, such as
 [folke/lazy.nvim](https://github.com/folke/lazy.nvim):
@@ -23,8 +23,10 @@ Install the theme with your preferred package manager, such as
     lazy = false,
     opts = {},
 }
+```
 
 ## Usage
+
 ```vim
 
 :InsGitHeader
