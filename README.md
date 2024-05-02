@@ -14,6 +14,9 @@ adds three commented lines on top of the current file like:
 >
 > author: Christian Schult <cschult@example.com> 2024
 
+
+## Installation
+
 Install the theme with your preferred package manager, such as
 [folke/lazy.nvim](https://github.com/folke/lazy.nvim):
 
