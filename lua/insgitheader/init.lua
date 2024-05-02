@@ -1,8 +1,7 @@
 local M = {}
 
-function M.setup(opts)
-	opts = opts or {}
-	vim.keymap.set("n", "<leader>H", function()
+function M.setup()
+	vim.api.nvim_create_user_command("InsGitHeader", function()
 		-- 1. Kommentarzeichen festlegen
 		local cleft, cright
 		local gcc = require("insgitheader.helper.get-comment-chars")
@@ -34,7 +33,7 @@ function M.setup(opts)
 		local newline = ""
 		-- 5. alles ausgeben auf mehreren Zeilen
 		vim.api.nvim_buf_set_lines(0, 0, 0, false, { line1, line2, line3, newline })
-	end, { desc = "insert some file info into the top" })
+	end, { bang = true, desc = "insert some file info into the top" })
 end
 
 return M
