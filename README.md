@@ -22,7 +22,7 @@ Install the theme with your preferred package manager, such as
 
 ```lua
 {
-    url = 'ssh://devmem.de/srv/git/insgitheader.nvim'
+    'cschult/insgitheader.nvim'
     lazy = false,
     opts = {},
 }
