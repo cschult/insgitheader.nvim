@@ -1,19 +1,22 @@
 local M = {}
 
-function M.setup()
+function M.setup(opts)
+	-- TODO: add a helper file to get name and email from git config
+	-- TODO: else get name and email from setup option
+	-- TODO: add a switch if git or setup shall be used to get name and email
+	opts = opts or {}
 	vim.api.nvim_create_user_command("InsGitHeader", function()
-		-- 1. Kommentarzeichen festlegen
+		-- get comment signs
 		local cleft, cright
 		local gcc = require("insgitheader.helper.get-comment-chars")
 		cleft, cright = gcc.get_comment_chars()
 		if cright ~= "" then
-			-- if cright then
 			cright = " " .. cright
 		end
 		if not cleft then
 			cleft = "#"
 		end
-		-- 2. Dateinamen festlegen
+		-- get file name
 		local gfn = require("insgitheader.helper.get-file-name")
 		local fname = gfn.get_file_name()
 		local line1 = cleft .. " file: " .. fname .. cright
@@ -26,12 +29,12 @@ function M.setup()
 		else
 			line2 = cleft .. cright
 		end
-		-- 4. Autor-Zeile festlegen
+		-- set author name
 		local year = os.date("%Y")
 		local line3 = cleft .. " author: Christian Schult <cschult@devmem.de> " .. year .. cright
-		-- empty line
+		-- add empty line
 		local newline = ""
-		-- 5. alles ausgeben auf mehreren Zeilen
+		-- add on top of file
 		vim.api.nvim_buf_set_lines(0, 0, 0, false, { line1, line2, line3, newline })
 	end, { bang = true, desc = "insert some file info into the top" })
 end
