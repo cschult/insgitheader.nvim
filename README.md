@@ -6,14 +6,14 @@ on top of the current file.
 
 ## Features
 
-adds three commented lines on top of the current file like:
+- adds three commented lines on top of the current file like:
+- handles VCSH managed repo
 
 > -- file: /home/cs/files/src/insgitheader.nvim/lua/insgitheader/init.lua
 >
 > -- git: /home/cs/files/src/insgitheader.nvim
 >
 > -- author: Christian Schult <cschult@example.com> 2024
-
 
 ## Installation
 
