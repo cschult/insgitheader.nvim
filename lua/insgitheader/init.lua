@@ -1,20 +1,15 @@
 local M = {}
 
 function M.setup(opts)
-	-- TODO: name und email können in opts gesetzt werden, dann werden die übernommen
-	-- -- sind sie dort nicht gesetzt, wird verscuht, sie aus git config zu bekommen
-	-- -- ansonsten werden name und email einfach ausgelassen
-	-- TODO: add a helper file to get name and email from git config
-	-- TODO: else get name and email from setup option
-	-- TODO: add a switch if git or setup shall be used to get name and email
 	opts = opts or {}
 	vim.api.nvim_create_user_command("InsGitHeader", function()
 		local name
 		if opts.name then
 			name = opts.name
 		else
-			local ggn = require("insgitheader.helper.get-git-user-name")
-			name = ggn.get_git_user_name()
+			-- local ggn = require("insgitheader.helper.get-git-user-name")
+			local ggi = require("insgitheader.helper.get-git-config-user")
+			name = ggi.get_git_user("name")
 		end
 		local email
 		if opts.email then
