@@ -12,6 +12,9 @@ function M.setup(opts)
 		local name
 		if opts.name then
 			name = opts.name
+		else
+			local ggn = require("insgitheader.helper.get-git-user-name")
+			name = ggn.get_git_user_name()
 		end
 		local email
 		if opts.email then
