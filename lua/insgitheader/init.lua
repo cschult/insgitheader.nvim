@@ -4,19 +4,19 @@ function M.setup(opts)
 	opts = opts or {}
 	vim.api.nvim_create_user_command("InsGitHeader", function()
 		local name
+		local ggcu = require("insgitheader.helper.get-git-config-user")
 		if opts.name then
 			name = opts.name
 		else
 			-- local ggn = require("insgitheader.helper.get-git-user-name")
-			local ggi = require("insgitheader.helper.get-git-config-user")
-			name = ggi.get_git_user("name")
+			name = ggcu.get_git_user("name")
 		end
 		local email
 		if opts.email then
 			email = "<" .. opts.email .. ">"
 		else
-			local gge = require("insgitheader.helper.get-git-user-email")
-			email = "<" .. gge.get_git_user_email() .. ">"
+			-- local gge = require("insgitheader.helper.get-git-user-email")
+			email = "<" .. ggcu.get_git_user("email") .. ">"
 		end
 		-- get comment signs
 		local cleft, cright
