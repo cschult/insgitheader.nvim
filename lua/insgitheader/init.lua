@@ -19,6 +19,9 @@ function M.setup(opts)
 		local email
 		if opts.email then
 			email = opts.email
+		else
+			local gge = require("insgitheader.helper.get-git-user-email")
+			email = "<" .. gge.get_git_user_email() .. ">"
 		end
 		-- get comment signs
 		local cleft, cright
