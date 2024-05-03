@@ -1,11 +1,23 @@
 local M = {}
 
 function M.setup(opts)
-	-- TODO: add a helper file to get name and email from git config
-	-- TODO: else get name and email from setup option
-	-- TODO: add a switch if git or setup shall be used to get name and email
 	opts = opts or {}
 	vim.api.nvim_create_user_command("InsGitHeader", function()
+		local name
+		local ggcu = require("insgitheader.helper.get-git-config-user")
+		if opts.name then
+			name = opts.name
+		else
+			-- local ggn = require("insgitheader.helper.get-git-user-name")
+			name = ggcu.get_git_user("name")
+		end
+		local email
+		if opts.email then
+			email = "<" .. opts.email .. ">"
+		else
+			-- local gge = require("insgitheader.helper.get-git-user-email")
+			email = "<" .. ggcu.get_git_user("email") .. ">"
+		end
 		-- get comment signs
 		local cleft, cright
 		local gcc = require("insgitheader.helper.get-comment-chars")
@@ -31,7 +43,7 @@ function M.setup(opts)
 		end
 		-- set author name
 		local year = os.date("%Y")
-		local line3 = cleft .. " author: Christian Schult <cschult@devmem.de> " .. year .. cright
+		local line3 = cleft .. " author: " .. name .. " " .. email .. " " .. year .. cright
 		-- add empty line
 		local newline = ""
 		-- add on top of file

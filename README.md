@@ -35,9 +35,3 @@ Install the theme with your preferred package manager, such as
 :InsGitHeader
 
 ```
-
-## what's coming next
-
-- get name and email from git config (not yet implemented)
-- set name and email as config option (not yet implemented)
-- get year from system date (not yet implemented)
