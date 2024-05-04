@@ -1,6 +1,6 @@
 local M = {}
 
-function M.setup(opts)
+M.setup = function(opts)
 	opts = opts or {}
 	vim.api.nvim_create_user_command("InsGitHeader", function()
 		local name
@@ -50,5 +50,4 @@ function M.setup(opts)
 		vim.api.nvim_buf_set_lines(0, 0, 0, false, { line1, line2, line3, newline })
 	end, { bang = true, desc = "insert some file info into the top" })
 end
-
 return M
