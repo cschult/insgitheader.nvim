@@ -57,3 +57,7 @@ name and email are looked up from git config.
 :InsGitHeader
 
 ```
+
+## Note
+
+I'm just learning to write a neovim plugin in lua. This is just a simple project for my personal use.
