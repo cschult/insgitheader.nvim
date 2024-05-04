@@ -7,6 +7,7 @@ on top of the current file.
 ## Features
 
 - adds three commented lines on top of the current file like:
+
 > -- file: /home/cs/files/src/insgitheader.nvim/lua/insgitheader/init.lua
 >
 > -- git: /home/cs/files/src/insgitheader.nvim
@@ -14,6 +15,11 @@ on top of the current file.
 > -- author: Christian Schult <cschult@example.com> 2024
 
 - handles VCSH managed repo
+
+## Requirements
+
+- Neovim >= **0.7.0**
+- Git
 
 ## Installation
 
