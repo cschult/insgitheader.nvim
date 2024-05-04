@@ -34,6 +34,22 @@ Install the theme with your preferred package manager, such as
 }
 ```
 
+or
+
+```lua
+{
+    'cschult/insgitheader.nvim'
+    lazy = false,
+    opts = {
+        name = 'John Doe',
+        email = 'jd@example.org'
+    },
+}
+```
+
+Setting name and email is optional. If unset,
+name and email are looked up from git config.
+
 ## Usage
 
 ```vim
