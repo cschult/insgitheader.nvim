@@ -1,20 +1,33 @@
 local M = {}
 
-local settings = {}
+local ggcu = require("insgitheader.helper.get-git-config-user")
+
+local settings = {
+	name = ggcu.get_git_user("name"),
+	email = ggcu.get_git_user("email"),
+}
+
+-- if settings.name == "" then
+-- 	settings.name = "unknown"
+-- end
+--
+-- if settings.email == "" then
+-- 	settings.email = "unknown@example.com"
+-- end
 
 -- M.setup = function(optstable)
 M.setup = function(opts)
 	opts = opts or {}
-	local ggcu = require("insgitheader.helper.get-git-config-user")
+	-- local ggcu = require("insgitheader.helper.get-git-config-user")
 	if opts.name ~= nil then
 		settings.name = opts.name
-	else
-		settings.name = ggcu.get_git_user("name")
+		-- else
+		-- 	settings.name = ggcu.get_git_user("name")
 	end
 	if opts.email ~= nil then
 		settings.email = opts.email
-	else
-		settings.email = "<" .. ggcu.get_git_user("email") .. ">"
+		-- else
+		-- 	settings.email = "<" .. ggcu.get_git_user("email") .. ">"
 	end
 end
 
