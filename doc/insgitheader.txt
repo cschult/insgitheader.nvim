@@ -17,7 +17,7 @@ author name and email.
 The year is the actual year (from system date).
 
 ============================================================================
-                                                               *:InsGitHeader*
+                                                               *InsGitHeader*
 Usage:
 
     `:InsGitHeader`
@@ -32,11 +32,11 @@ Configuration:
 <
 Options:
 
-    `name`  Set author name. Optional. If omitted, |:InsGitHeader| will call
+    `name`  Set author name. Optional. If omitted, |InsGitHeader| will call
           `git config user.name` to get the name, else it will use
           `unknown` as author name.
 
-    `email`  Set authors email address. Optional. If omitted, |:InsGitHeader|
+    `email`  Set authors email address. Optional. If omitted, |InsGitHeader|
            will call `git config user.email` to get the address, else it will
            use `unknown@example.com` as authors email address.
 
