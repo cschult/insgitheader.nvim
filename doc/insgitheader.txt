@@ -1,6 +1,12 @@
+*insgitheader.txt* Nvim
+
+Insert file header
+
 ============================================================================
                                                            *insgitheader.nvim*
+
 This plugin inserts some information as a comment into the top of the file.
+
 The information added is the file name and path, the name of the git
 repository and name and email address of the author.
 
@@ -8,21 +14,33 @@ Name and email address can be set as config option or else are tried to read
 from git config or else just print "unknown" and "unknown@example.com" for
 author name and email.
 
-The year is the actual year.
+The year is the actual year (from system date).
 
+============================================================================
+                                                                *InsGitHeader*
+Usage:
 
-Run with:
     `:InsGitHeader`
 
                                                         *insgitheader.setup()*
-Usage:
+Configuration:
 >
     require('insgitheader').setup {
             name = 'John Doe',
             email = 'jd@example.com'
     }
 <
-Example:
+Options:
+
+    `name`  Set author name. Optional. If omitted, |:InsGitHeader| will call
+          `git config user.name` to get the name, else it will use
+          `unknown` as author name.
+
+    `email`  Set authors email address. Optional. If omitted, |:InsGitHeader|
+           will call `git config user.email` to get the address, else it will
+           use `unknown@example.com` as authors email address.
+
+How it looks:
 >
     -- file: /home/jd/foo.git/bar.lua
     -- git: /home/jd/foo.git
