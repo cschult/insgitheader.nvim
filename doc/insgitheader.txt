@@ -17,7 +17,7 @@ author name and email.
 The year is the actual year (from system date).
 
 ============================================================================
-                                                                *InsGitHeader*
+                                                               *:InsGitHeader*
 Usage:
 
     `:InsGitHeader`
