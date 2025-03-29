@@ -60,4 +60,5 @@ name and email are looked up from git config.
 
 ## Note
 
-I'm just learning to write a neovim plugin in lua. This is just a simple project for my personal use.
+I'm just learning to write a neovim plugin in lua.
+This is just a simple project for my personal use.
