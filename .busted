@@ -1,0 +1,5 @@
+return {
+	default = {
+		helper = "tests/spec_helper.lua",
+	},
+}
