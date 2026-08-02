@@ -12,7 +12,7 @@ on top of the current file.
 >
 > -- git: /home/cs/files/src/insgitheader.nvim
 >
-> -- author: Christian Schult <cschult@example.com> 2024
+> -- author: <user@example.com> 2024
 
 - handles VCSH managed repo
 
@@ -28,7 +28,7 @@ Install the theme with your preferred package manager, such as
 
 ```lua
 {
-    'cschult/insgitheader.nvim'
+    'headoop/insgitheader.nvim'
     lazy = false,
     opts = {},
 }
@@ -38,7 +38,7 @@ or
 
 ```lua
 {
-    'cschult/insgitheader.nvim'
+    'headoop/insgitheader.nvim'
     lazy = false,
     opts = {
         name = 'John Doe',
