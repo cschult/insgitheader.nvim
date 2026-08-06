@@ -6,35 +6,35 @@ describe("get-comment-chars", function()
 		gcc = require("insgitheader.helper.get-comment-chars")
 	end)
 
-	it("parst einseitigen Kommentar ohne Leerzeichen: '--'", function()
+	it("should parse a one-sided comment without a space: '--'", function()
 		vim._test.commentstring = "--%s"
 		local cleft, cright = gcc.get_comment_chars()
 		assert.are.equal("--", cleft)
 		assert.are.equal("", cright)
 	end)
 
-	it("parst einseitigen Kommentar mit Leerzeichen: '-- '", function()
+	it("should parse a one-sided comment with a space: '-- '", function()
 		vim._test.commentstring = "-- %s"
 		local cleft, cright = gcc.get_comment_chars()
 		assert.are.equal("-- ", cleft)
 		assert.are.equal("", cright)
 	end)
 
-	it("parst Python/Shell-Kommentar: '# '", function()
+	it("should parse a Python/shell comment: '# '", function()
 		vim._test.commentstring = "# %s"
 		local cleft, cright = gcc.get_comment_chars()
 		assert.are.equal("# ", cleft)
 		assert.are.equal("", cright)
 	end)
 
-	it("parst C-Blockkommentar: '/* ... */'", function()
+	it("should parse a C block comment: '/* ... */'", function()
 		vim._test.commentstring = "/* %s */"
 		local cleft, cright = gcc.get_comment_chars()
 		assert.are.equal("/* ", cleft)
 		assert.are.equal(" */", cright)
 	end)
 
-	it("parst HTML-Kommentar: '<!-- ... -->'", function()
+	it("should parse an HTML comment: '<!-- ... -->'", function()
 		vim._test.commentstring = "<!-- %s -->"
 		local cleft, cright = gcc.get_comment_chars()
 		assert.are.equal("<!-- ", cleft)

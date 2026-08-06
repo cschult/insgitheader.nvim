@@ -7,62 +7,62 @@ describe("prolog", function()
 	end)
 
 	describe("is_prolog()", function()
-		it("erkennt einen Shebang", function()
+		it("should detect a shebang", function()
 			assert.is_true(fh.is_prolog("#!/usr/bin/env bash"))
 		end)
 
-		it("erkennt eine XML-Deklaration", function()
+		it("should detect an XML declaration", function()
 			assert.is_true(fh.is_prolog('<?xml version="1.0"?>'))
 		end)
 
-		it("erkennt ein PHP-Open-Tag", function()
+		it("should detect a PHP open tag", function()
 			assert.is_true(fh.is_prolog("<?php"))
 		end)
 
-		it("erkennt eine Encoding-Deklaration", function()
+		it("should detect an encoding declaration", function()
 			assert.is_true(fh.is_prolog("# -*- coding: utf-8 -*-"))
 		end)
 
-		it("erkennt eine @charset-Regel", function()
+		it("should detect an @charset rule", function()
 			assert.is_true(fh.is_prolog('@charset "UTF-8";'))
 		end)
 
-		it("erkennt gewöhnlichen Code nicht als Prolog", function()
+		it("should not detect ordinary code as a prologue", function()
 			assert.is_false(fh.is_prolog("local x = 1"))
 			assert.is_false(fh.is_prolog("# ein normaler Kommentar"))
 		end)
 	end)
 
 	describe("prolog_length()", function()
-		it("gibt 0 zurück ohne Prolog", function()
+		it("should return 0 without a prologue", function()
 			assert.are.equal(0, fh.prolog_length({ "local x = 1" }))
 		end)
 
-		it("zählt eine einzelne Shebang-Zeile", function()
+		it("should count a single shebang line", function()
 			assert.are.equal(1, fh.prolog_length({ "#!/bin/sh", "echo hi" }))
 		end)
 
-		it("zählt Shebang plus Encoding-Zeile", function()
+		it("should count shebang plus encoding line", function()
 			local lines = { "#!/usr/bin/env python3", "# -*- coding: utf-8 -*-", "import sys" }
 			assert.are.equal(2, fh.prolog_length(lines))
 		end)
 
-		it("hört bei maximal zwei Zeilen auf", function()
+		it("should stop after two lines at most", function()
 			local lines = { "#!/bin/sh", "#!/bin/sh", "#!/bin/sh" }
 			assert.are.equal(2, fh.prolog_length(lines))
 		end)
 
-		it("zählt nur zusammenhängende Zeilen ab Zeile 1", function()
+		it("should count only consecutive lines from line 1", function()
 			local lines = { "echo hi", "#!/bin/sh" }
 			assert.are.equal(0, fh.prolog_length(lines))
 		end)
 
-		it("kommt mit einem leeren Puffer zurecht", function()
+		it("should cope with an empty buffer", function()
 			assert.are.equal(0, fh.prolog_length({}))
 		end)
 	end)
 
-	describe("Platzierung durch insert_headers()", function()
+	describe("placement by insert_headers()", function()
 		local ins
 		local original_popen
 		local original_getenv
@@ -114,7 +114,7 @@ describe("prolog", function()
 			os.getenv = original_getenv
 		end)
 
-		it("setzt den Block mit Leerzeile unter den Shebang", function()
+		it("should put the block below the shebang with a blank line", function()
 			vim._test.reset({ "#!/bin/bash", "set -e" })
 			ins.insert_headers()
 			assert.are.equal("#!/bin/bash", vim._test.lines[1])
@@ -126,7 +126,7 @@ describe("prolog", function()
 			assert.are.equal("set -e", vim._test.lines[7])
 		end)
 
-		it("verwendet eine vorhandene Leerzeile nach dem Shebang", function()
+		it("should reuse an existing blank line after the shebang", function()
 			vim._test.reset({ "#!/bin/bash", "", "set -e" })
 			ins.insert_headers()
 			assert.are.equal("#!/bin/bash", vim._test.lines[1])
@@ -137,7 +137,7 @@ describe("prolog", function()
 			assert.are.equal(7, #vim._test.lines)
 		end)
 
-		it("setzt den Block unter Shebang und coding-Zeile", function()
+		it("should put the block below shebang and coding line", function()
 			vim._test.reset({ "#!/usr/bin/env python3", "# -*- coding: utf-8 -*-", "import sys" })
 			ins.insert_headers()
 			assert.are.equal("# -*- coding: utf-8 -*-", vim._test.lines[2])
@@ -146,7 +146,7 @@ describe("prolog", function()
 			assert.are.equal("import sys", vim._test.lines[8])
 		end)
 
-		it("setzt den Cursor auf die file:-Zeile unter dem Shebang", function()
+		it("should put the cursor on the file: line below the shebang", function()
 			vim._test.reset({ "#!/bin/bash", "set -e" })
 			ins.insert_headers()
 			assert.are.same({ 3, 0 }, vim._test.cursor)

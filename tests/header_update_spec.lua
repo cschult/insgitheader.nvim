@@ -7,36 +7,36 @@ describe("header-update", function()
 			fh = require("insgitheader.helper.find-header")
 		end)
 
-		it("findet den Block am Dateianfang", function()
+		it("should find the block at the start of the file", function()
 			local lines = { "-- file: x", "-- git: y", "-- author: z 2024", "", "code" }
 			local first, last = fh.find_block(lines, "--")
 			assert.are.equal(1, first)
 			assert.are.equal(3, last)
 		end)
 
-		it("findet den Block hinter Prolog und Leerzeile", function()
+		it("should find the block below prologue and blank line", function()
 			local lines = { "#!/bin/sh", "", "# file: x", "# git: y", "# author: z 2024" }
 			local first, last = fh.find_block(lines, "#")
 			assert.are.equal(3, first)
 			assert.are.equal(5, last)
 		end)
 
-		it("findet keinen Block bei anderem Kommentarzeichen", function()
+		it("should not find a block with a different comment character", function()
 			local lines = { "-- file: x", "-- git: y", "-- author: z 2024" }
 			assert.is_nil(fh.find_block(lines, "#"))
 		end)
 
-		it("findet keinen Block wenn eine Zeile fehlt", function()
+		it("should not find a block if a line is missing", function()
 			local lines = { "-- file: x", "-- author: z 2024" }
 			assert.is_nil(fh.find_block(lines, "--"))
 		end)
 
-		it("findet keinen Block hinter fremden Kommentarzeilen", function()
+		it("should not find a block below unrelated comment lines", function()
 			local lines = { "-- SPDX-License-Identifier: MIT", "-- file: x", "-- git: y", "-- author: z 2024" }
 			assert.is_nil(fh.find_block(lines, "--"))
 		end)
 
-		it("erkennt eine Prolog-Zeile hinter dem Block", function()
+		it("should detect a prologue line below the block", function()
 			local lines = { "# file: x", "# git: y", "# author: z 2024", "", "#!/bin/bash" }
 			local _, last = fh.find_block(lines, "#")
 			assert.is_true(fh.prolog_below(lines, last))
@@ -51,50 +51,50 @@ describe("header-update", function()
 			fh = require("insgitheader.helper.find-header")
 		end)
 
-		it("liest ein einzelnes Jahr", function()
+		it("should read a single year", function()
 			local year, who, chain = fh.parse_author("-- author: Jane <j@x> 2019")
 			assert.are.equal("2019", year)
 			assert.are.equal("Jane <j@x>", who)
 			assert.is_nil(chain)
 		end)
 
-		it("liest das erste Jahr eines Bereichs", function()
+		it("should read the first year of a range", function()
 			local year = fh.parse_author("-- author: Jane <j@x> 2019-2024")
 			assert.are.equal("2019", year)
 		end)
 
-		it("liest eine vorhandene Kette", function()
+		it("should read an existing chain", function()
 			local year, who, chain = fh.parse_author("-- author: Jane <j@x> 2019-2024 (orig. Old <o@y>)")
 			assert.are.equal("2019", year)
 			assert.are.equal("Jane <j@x>", who)
 			assert.are.equal("Old <o@y>", chain)
 		end)
 
-		it("kommt mit rechtem Kommentarzeichen zurecht", function()
+		it("should cope with a right comment character", function()
 			local year, who = fh.parse_author("/* author: Jane <j@x> 2019 */")
 			assert.are.equal("2019", year)
 			assert.are.equal("Jane <j@x>", who)
 		end)
 
-		it("liest das alte Format ohne spitze Klammern", function()
+		it("should read the old format without angle brackets", function()
 			local _, who = fh.parse_author("-- author: Jane j@x 2019")
 			assert.are.equal("Jane j@x", who)
 		end)
 
-		it("verwechselt eine mit Ziffern beginnende E-Mail nicht mit dem Jahr", function()
+		it("should not mistake an email starting with digits for the year", function()
 			local year, who = fh.parse_author("# author: cs <12900332+headoop@users.noreply.github.com> 2019")
 			assert.are.equal("2019", year)
 			assert.are.equal("cs <12900332+headoop@users.noreply.github.com>", who)
 		end)
 
-		it("gibt kein Jahr zurück wenn keines vorhanden ist", function()
+		it("should return no year if there is none", function()
 			local year, who = fh.parse_author("-- author: Jane <j@x>")
 			assert.is_nil(year)
 			assert.is_nil(who)
 		end)
 	end)
 
-	describe("insert_headers() auf bestehendem Header", function()
+	describe("insert_headers() on an existing header", function()
 		local ins
 		local original_popen
 		local original_getenv
@@ -156,10 +156,10 @@ describe("header-update", function()
 			os.date = original_date
 		end)
 
-		it("ersetzt den Block statt einen zweiten anzulegen", function()
+		it("should replace the block instead of creating a second one", function()
 			vim._test.reset({
-				"-- file: /alt/pfad.lua",
-				"-- git: /alt/repo",
+				"-- file: /old/path.lua",
+				"-- git: /old/repo",
 				"-- author: Test User <test@example.com> 2026",
 				"",
 				"local x = 1",
@@ -171,7 +171,7 @@ describe("header-update", function()
 			assert.are.equal("local x = 1", vim._test.lines[5])
 		end)
 
-		it("schreibt das Jahr zum Bereich fort", function()
+		it("should carry the year over into a range", function()
 			vim._test.reset({
 				"-- file: x",
 				"-- git: y",
@@ -182,7 +182,7 @@ describe("header-update", function()
 			assert.are.equal("-- author: Test User <test@example.com> 2019-2026", vim._test.lines[3])
 		end)
 
-		it("legt bei gleichem Jahr keinen Bereich an", function()
+		it("should not create a range if the year is the same", function()
 			vim._test.reset({
 				"-- file: x",
 				"-- git: y",
@@ -193,7 +193,7 @@ describe("header-update", function()
 			assert.are.equal("-- author: Test User <test@example.com> 2026", vim._test.lines[3])
 		end)
 
-		it("erweitert einen vorhandenen Bereich", function()
+		it("should extend an existing range", function()
 			vim._test.reset({
 				"-- file: x",
 				"-- git: y",
@@ -204,7 +204,7 @@ describe("header-update", function()
 			assert.are.equal("-- author: Test User <test@example.com> 2019-2026", vim._test.lines[3])
 		end)
 
-		it("übernimmt einen fremden Alt-Autor in die Kette", function()
+		it("should take a foreign previous author into the chain", function()
 			vim._test.reset({
 				"-- file: x",
 				"-- git: y",
@@ -218,7 +218,7 @@ describe("header-update", function()
 			)
 		end)
 
-		it("hängt weitere Vorautoren hinten an die Kette an", function()
+		it("should append further previous authors to the end of the chain", function()
 			vim._test.reset({
 				"-- file: x",
 				"-- git: y",
@@ -232,7 +232,7 @@ describe("header-update", function()
 			)
 		end)
 
-		it("legt keine Kette an wenn nur das Format abweicht", function()
+		it("should not create a chain if only the format differs", function()
 			vim._test.reset({
 				"-- file: x",
 				"-- git: y",
@@ -243,7 +243,7 @@ describe("header-update", function()
 			assert.are.equal("-- author: Test User <test@example.com> 2019-2026", vim._test.lines[3])
 		end)
 
-		it("aktualisiert einen Block unterhalb des Shebangs", function()
+		it("should update a block below the shebang", function()
 			vim._test.commentstring = "# %s"
 			package.loaded["insgitheader.helper.get-comment-chars"] = nil
 			vim._test.reset({
@@ -262,7 +262,7 @@ describe("header-update", function()
 			assert.are.equal(0, #vim._test.notifications)
 		end)
 
-		it("warnt wenn der Header über dem Shebang steht, ändert ihn aber dort", function()
+		it("should warn if the header sits above the shebang, but update it there", function()
 			vim._test.commentstring = "# %s"
 			package.loaded["insgitheader.helper.get-comment-chars"] = nil
 			vim._test.reset({
@@ -282,7 +282,7 @@ describe("header-update", function()
 			assert.are.equal(vim.log.levels.WARN, vim._test.notifications[1].level)
 		end)
 
-		it("legt bei geändertem Kommentarzeichen einen zweiten Header an", function()
+		it("should create a second header if the comment character changed", function()
 			vim._test.commentstring = "# %s"
 			package.loaded["insgitheader.helper.get-comment-chars"] = nil
 			vim._test.reset({
@@ -296,7 +296,7 @@ describe("header-update", function()
 			assert.are.equal("-- file: x", vim._test.lines[5])
 		end)
 
-		it("setzt den Cursor auf die file:-Zeile des aktualisierten Blocks", function()
+		it("should put the cursor on the file: line of the updated block", function()
 			vim._test.commentstring = "# %s"
 			package.loaded["insgitheader.helper.get-comment-chars"] = nil
 			vim._test.reset({

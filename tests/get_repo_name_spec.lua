@@ -41,7 +41,7 @@ describe("get-repo-name", function()
 		os.getenv = original_getenv
 	end)
 
-	it("gibt 'name (VCSH)' zurück wenn VCSH_REPO_NAME gesetzt ist", function()
+	it("should return 'name (VCSH)' if VCSH_REPO_NAME is set", function()
 		os.getenv = function(key)
 			if key == "VCSH_REPO_NAME" then
 				return "dotfiles"
@@ -54,7 +54,7 @@ describe("get-repo-name", function()
 		assert.is_false(is_chezmoi)
 	end)
 
-	it("gibt den Git-Toplevel-Pfad zurück für ein normales Repo", function()
+	it("should return the git toplevel path for a normal repo", function()
 		io.popen = popen_mock({
 			{ "^chezmoi", nil },
 			{ "is%-inside%-work%-tree", "true" },
@@ -66,7 +66,7 @@ describe("get-repo-name", function()
 		assert.is_false(is_chezmoi)
 	end)
 
-	it("gibt nil zurück wenn nicht in einem Git-Repository", function()
+	it("should return nil if not inside a git repository", function()
 		io.popen = popen_mock({})
 		grn = require("insgitheader.helper.get-repo-name")
 		local repo, is_chezmoi = grn.get_repo_name()
@@ -77,7 +77,7 @@ describe("get-repo-name", function()
 	describe("chezmoi", function()
 		local SRC = "/home/user/.local/share/chezmoi"
 
-		it("markiert eine verwaltete Target-Datei", function()
+		it("should mark a managed target file", function()
 			vim._test.bufname = "/home/user/.bashrc"
 			io.popen = popen_mock({
 				{ "^chezmoi source%-path 2>", SRC },
@@ -90,7 +90,7 @@ describe("get-repo-name", function()
 			assert.is_true(is_chezmoi)
 		end)
 
-		it("markiert eine Quelldatei im Source-Dir", function()
+		it("should mark a source file in the source directory", function()
 			vim._test.bufname = SRC .. "/dot_bashrc.tmpl"
 			io.popen = popen_mock({
 				{ "^chezmoi source%-path 2>", SRC },
@@ -104,7 +104,7 @@ describe("get-repo-name", function()
 			assert.is_true(is_chezmoi)
 		end)
 
-		it("markiert auch eine Datei im Source-Dir ohne gültigen Round-Trip", function()
+		it("should mark a file in the source directory without a valid round-trip too", function()
 			vim._test.bufname = SRC .. "/README.md"
 			io.popen = popen_mock({
 				{ "^chezmoi source%-path 2>", SRC },
@@ -118,7 +118,7 @@ describe("get-repo-name", function()
 			assert.is_true(is_chezmoi)
 		end)
 
-		it("markiert eine nicht verwaltete Datei nicht", function()
+		it("should not mark an unmanaged file", function()
 			vim._test.bufname = "/home/user/project/src/file.lua"
 			io.popen = popen_mock({
 				{ "^chezmoi source%-path 2>", SRC },
@@ -132,7 +132,7 @@ describe("get-repo-name", function()
 			assert.is_false(is_chezmoi)
 		end)
 
-		it("probiert es erneut wenn chezmoi nicht installiert ist", function()
+		it("should try again if chezmoi is not installed", function()
 			-- A failed probe is deliberately not pinned down: chezmoi can be
 			-- installed in the middle of a session.
 			local calls = 0
@@ -155,12 +155,12 @@ describe("get-repo-name", function()
 			end
 			grn = require("insgitheader.helper.get-repo-name")
 			grn.get_repo_name()
-			vim._test.bufname = "/home/user/anderes/file.lua"
+			vim._test.bufname = "/home/user/other/file.lua"
 			grn.get_repo_name()
 			assert.are.equal(2, calls)
 		end)
 
-		it("beantwortet denselben Buffer beim zweiten Mal ohne chezmoi-Aufruf", function()
+		it("should answer the same buffer the second time without calling chezmoi", function()
 			io.popen = popen_mock({
 				{ "^chezmoi source%-path 2>", SRC },
 				{ "^chezmoi source%-path ", SRC .. "/dot_bashrc.tmpl" },

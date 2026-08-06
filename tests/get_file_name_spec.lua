@@ -37,33 +37,33 @@ describe("get-file-name", function()
 		io.popen = original_popen
 	end)
 
-	it("gibt den vollständigen Pufferpfad zurück", function()
+	it("should return the full buffer path", function()
 		vim._test.bufname = "/home/user/project/file.lua"
 		assert.are.equal("/home/user/project/file.lua", gfn.get_file_name())
 	end)
 
-	it("gibt leeren String zurück für unbenannten Puffer", function()
+	it("should return an empty string for an unnamed buffer", function()
 		vim._test.bufname = ""
 		assert.are.equal("", gfn.get_file_name())
 	end)
 
 	describe("mode 'basename'", function()
-		it("gibt nur den Dateinamen zurück", function()
+		it("should return the file name only", function()
 			vim._test.bufname = "/home/user/project/file.lua"
 			assert.are.equal("file.lua", gfn.get_file_name("basename"))
 		end)
 
-		it("kommt mit einem Pfad ohne Schrägstrich zurecht", function()
+		it("should cope with a path without a slash", function()
 			vim._test.bufname = "file.lua"
 			assert.are.equal("file.lua", gfn.get_file_name("basename"))
 		end)
 
-		it("gibt leeren String zurück für unbenannten Puffer", function()
+		it("should return an empty string for an unnamed buffer", function()
 			vim._test.bufname = ""
 			assert.are.equal("", gfn.get_file_name("basename"))
 		end)
 
-		it("nimmt bei einer chezmoi-Quelldatei den Basename des Zielpfads", function()
+		it("should take the basename of the target path for a chezmoi source file", function()
 			vim._test.bufname = SRC .. "/dot_bashrc.tmpl"
 			io.popen = popen_mock({
 				{ "^chezmoi source%-path 2>", SRC },
@@ -84,7 +84,7 @@ describe("get-file-name", function()
 			package.loaded["insgitheader.helper.get-chezmoi"] = nil
 		end)
 
-		it("weist bei einer Quelldatei den Zielpfad aus", function()
+		it("should show the target path for a source file", function()
 			vim._test.bufname = SRC .. "/dot_bashrc.tmpl"
 			io.popen = popen_mock({
 				{ "^chezmoi source%-path 2>", SRC },
@@ -96,7 +96,7 @@ describe("get-file-name", function()
 			assert.are.equal("/home/user/.bashrc", gfn.get_file_name())
 		end)
 
-		it("behält den echten Pfad wenn der Round-Trip fehlschlägt", function()
+		it("should keep the real path if the round-trip fails", function()
 			vim._test.bufname = SRC .. "/README.md"
 			io.popen = popen_mock({
 				{ "^chezmoi source%-path 2>", SRC },
@@ -108,7 +108,7 @@ describe("get-file-name", function()
 			assert.are.equal(SRC .. "/README.md", gfn.get_file_name())
 		end)
 
-		it("behält bei einer Target-Datei den aktuellen Pfad", function()
+		it("should keep the current path for a target file", function()
 			vim._test.bufname = "/home/user/.bashrc"
 			io.popen = popen_mock({
 				{ "^chezmoi source%-path 2>", SRC },

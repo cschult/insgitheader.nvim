@@ -56,44 +56,44 @@ describe("insgitheader", function()
 	end)
 
 	describe("setup()", function()
-		it("überschreibt den Autorennamen", function()
+		it("should override the author name", function()
 			ins.setup({ name = "Jane Doe", email = "jane@example.com" })
 			ins.insert_headers()
 			assert.truthy(vim._test.lines[3]:match("Jane Doe"))
 		end)
 
-		it("überschreibt die E-Mail-Adresse", function()
+		it("should override the email address", function()
 			ins.setup({ name = "Jane Doe", email = "jane@example.com" })
 			ins.insert_headers()
 			assert.truthy(vim._test.lines[3]:match("jane@example%.com"))
 		end)
 
-		it("lässt Name und E-Mail unverändert wenn opts leer", function()
+		it("should leave name and email unchanged if opts is empty", function()
 			ins.setup({})
 			ins.insert_headers()
 			assert.truthy(vim._test.lines[3]:match("Test User"))
 			assert.truthy(vim._test.lines[3]:match("test@example%.com"))
 		end)
 
-		it("schreibt vorgabegemäß den vollständigen Pfad", function()
+		it("should write the full path by default", function()
 			ins.setup({})
 			ins.insert_headers()
 			assert.are.equal("-- file: /project/src/file.lua", vim._test.lines[1])
 		end)
 
-		it("schreibt mit path='basename' nur den Dateinamen", function()
+		it("should write only the file name with path='basename'", function()
 			ins.setup({ path = "basename" })
 			ins.insert_headers()
 			assert.are.equal("-- file: file.lua", vim._test.lines[1])
 		end)
 
-		it("schreibt mit path='full' den vollständigen Pfad", function()
+		it("should write the full path with path='full'", function()
 			ins.setup({ path = "full" })
 			ins.insert_headers()
 			assert.are.equal("-- file: /project/src/file.lua", vim._test.lines[1])
 		end)
 
-		it("warnt bei unbekanntem path-Wert und behält die Vorgabe", function()
+		it("should warn on an unknown path value and keep the default", function()
 			ins.setup({ path = "relative" })
 			ins.insert_headers()
 			assert.are.equal(1, #vim._test.notifications)
@@ -102,7 +102,7 @@ describe("insgitheader", function()
 			assert.are.equal("-- file: /project/src/file.lua", vim._test.lines[1])
 		end)
 
-		it("aktualisiert einen bestehenden Header nach path='basename'", function()
+		it("should update an existing header to path='basename'", function()
 			vim._test.reset({
 				"-- file: /project/src/file.lua",
 				"-- git: /project",
@@ -121,62 +121,62 @@ describe("insgitheader", function()
 			ins.setup({})
 		end)
 
-		it("fügt genau 4 Zeilen ein (3 Header + Leerzeile)", function()
+		it("should insert exactly 4 lines (3 header + blank line)", function()
 			ins.insert_headers()
 			assert.are.equal(4, #vim._test.set_lines)
 		end)
 
-		it("erste Zeile enthält den Dateinamen", function()
+		it("should put the file name in the first line", function()
 			ins.insert_headers()
 			assert.truthy(vim._test.lines[1]:match("file%.lua"))
 		end)
 
-		it("erste Zeile beginnt mit dem Kommentarsymbol", function()
+		it("should start the first line with the comment character", function()
 			ins.insert_headers()
 			assert.truthy(vim._test.lines[1]:match("^%-%-"))
 		end)
 
-		it("zweite Zeile enthält den Repo-Pfad", function()
+		it("should put the repo path in the second line", function()
 			ins.insert_headers()
 			assert.truthy(vim._test.lines[2]:match("/project"))
 		end)
 
-		it("dritte Zeile enthält das aktuelle Jahr", function()
+		it("should put the current year in the third line", function()
 			ins.insert_headers()
 			local year = tostring(os.date("%Y"))
 			assert.truthy(vim._test.lines[3]:match(year))
 		end)
 
-		it("setzt die E-Mail in spitze Klammern", function()
+		it("should put the email in angle brackets", function()
 			ins.insert_headers()
 			assert.truthy(vim._test.lines[3]:match("<test@example%.com>"))
 		end)
 
-		it("vierte Zeile ist leer", function()
+		it("should leave the fourth line blank", function()
 			ins.insert_headers()
 			assert.are.equal("", vim._test.lines[4])
 		end)
 
-		it("lässt den restlichen Pufferinhalt stehen", function()
+		it("should leave the rest of the buffer content in place", function()
 			ins.insert_headers()
 			assert.are.equal("local x = 1", vim._test.lines[5])
 		end)
 
-		it("verwendet rechtes Kommentarsymbol bei Blockkommentaren", function()
+		it("should use the right comment character for block comments", function()
 			vim._test.commentstring = "/* %s */"
 			package.loaded["insgitheader.helper.get-comment-chars"] = nil
 			ins.insert_headers()
 			assert.truthy(vim._test.lines[1]:match("%*/$"))
 		end)
 
-		it("fällt auf '#' zurück wenn kein commentstring gesetzt", function()
+		it("should fall back to '#' if no commentstring is set", function()
 			vim._test.commentstring = ""
 			package.loaded["insgitheader.helper.get-comment-chars"] = nil
 			ins.insert_headers()
 			assert.truthy(vim._test.lines[1]:match("^#"))
 		end)
 
-		it("verdoppelt eine vorhandene Leerzeile am Blockende nicht", function()
+		it("should not double an existing blank line at the end of the block", function()
 			vim._test.reset({ "", "local x = 1" })
 			ins.insert_headers()
 			assert.are.equal(3, #vim._test.set_lines)
@@ -184,12 +184,12 @@ describe("insgitheader", function()
 			assert.are.equal("local x = 1", vim._test.lines[5])
 		end)
 
-		it("setzt den Cursor auf die file:-Zeile", function()
+		it("should put the cursor on the file: line", function()
 			ins.insert_headers()
 			assert.are.same({ 1, 0 }, vim._test.cursor)
 		end)
 
-		it("lässt die git-Zeile leer wenn kein Repo gefunden wird", function()
+		it("should leave the git line empty if no repo is found", function()
 			io.popen = function(cmd)
 				local result
 				if cmd:match("git config user%.name") then
