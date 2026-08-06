@@ -15,7 +15,7 @@ function M.get_repo_name()
 	-- Vor Git fragen: Quelldateien liegen zwar in einem Git-Repo, sollen aber
 	-- trotzdem als chezmoi ausgewiesen werden, und Target-Dateien liegen in gar
 	-- keinem. Das Repo ist in beiden Fällen das des chezmoi-Source-Dirs.
-	local is_chezmoi, chezmoi_repo = chezmoi.lookup(bufname)
+	local is_chezmoi, chezmoi_repo = chezmoi.lookup(0)
 	if is_chezmoi then
 		return chezmoi_repo, true
 	end

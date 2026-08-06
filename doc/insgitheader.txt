@@ -81,8 +81,29 @@ identical in source and target and `chezmoi apply` produces no diff. Files
 inside the source directory that are not chezmoi entries, such as README.md,
 keep their real path.
 
-chezmoi is optional. If the executable is not found, the detection is
-disabled silently for the rest of the session.
+chezmoi is optional. If the executable is not found, nothing is marked and no
+error is shown. The plugin keeps trying, so installing chezmoi mid-session
+starts working without restarting Neovim.
+
+                                                *b:insgitheader_chezmoi*
+The result of the chezmoi lookup is remembered per buffer in the buffer
+variable `b:insgitheader_chezmoi` , so repeated calls in the same buffer cost
+no extra processes. Inspect it with:
+>
+    :echo b:insgitheader_chezmoi
+<
+It holds the path it was determined for, whether the file is managed, the
+chezmoi repository and, for a source file, the target path.
+
+The entry is dropped, and the lookup runs again, when
+
+    - the buffer is written (|BufWritePost|), which also picks up a source
+      file that did not exist yet the first time round, and
+    - the buffer changes its name (|BufFilePost|), as with |:saveas| or
+      |:file| .
+
+A `chezmoi add` done outside Neovim is therefore picked up the next time the
+buffer is written or renamed, not immediately.
 
                                                         *insgitheader.setup()*
 Configuration:
