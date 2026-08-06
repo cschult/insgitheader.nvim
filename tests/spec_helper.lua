@@ -1,7 +1,7 @@
--- Setzt package.path damit require() die Plugin-Module findet
+-- Sets package.path so that require() finds the plugin modules
 package.path = "./lua/?.lua;./lua/?/init.lua;" .. package.path
 
--- vim-API-Stub: simuliert die Neovim-API für Tests
+-- vim API stub: simulates the Neovim API for the tests
 _G.vim = {
 	api = {
 		nvim_get_current_buf = function()
@@ -10,8 +10,8 @@ _G.vim = {
 		nvim_get_option_value = function(name, opts)
 			return _G.vim._test.commentstring
 		end,
-		-- Einzelne Tests können pro Buffer einen Namen in _test.bufnames
-		-- hinterlegen; sonst gilt für alle Buffer _test.bufname.
+		-- Individual tests can register a per-buffer name in _test.bufnames;
+		-- otherwise _test.bufname applies to every buffer.
 		nvim_buf_get_name = function(n)
 			return _G.vim._test.bufnames[n] or _G.vim._test.bufname
 		end,
@@ -35,9 +35,9 @@ _G.vim = {
 			end
 			return copy
 		end,
-		-- Wendet die Änderung wirklich auf _test.lines an, damit Tests das
-		-- Ergebnis prüfen können. Semantik wie in Neovim: start 0-basiert,
-		-- end_ exklusiv, negative Werte zählen vom Dateiende.
+		-- Really applies the change to _test.lines, so that tests can assert the
+		-- result. Same semantics as in Neovim: start 0-based, end_ exclusive,
+		-- negative values count from the end of the file.
 		nvim_buf_set_lines = function(buf, start, end_, strict, lines)
 			local buffer = _G.vim._test.lines
 			if end_ < 0 then
@@ -72,7 +72,7 @@ _G.vim = {
 	log = {
 		levels = { TRACE = 0, DEBUG = 1, INFO = 2, WARN = 3, ERROR = 4 },
 	},
-	-- Werte die einzelne Tests überschreiben können
+	-- Values that individual tests can override
 	_test = {
 		commentstring = "-- %s",
 		bufname = "/test/file.lua",
@@ -89,8 +89,8 @@ _G.vim = {
 	},
 }
 
--- vim.b[bufnr] verhält sich wie in Neovim: Zuweisungen bleiben am Buffer
--- hängen, Löschen und nie gesetzte Schlüssel liefern nil.
+-- vim.b[bufnr] behaves as it does in Neovim: assignments stick to the buffer,
+-- deleted and never-set keys return nil.
 _G.vim.b = setmetatable({}, {
 	__index = function(_, bufnr)
 		local vars = _G.vim._test.buffer_vars
@@ -99,7 +99,7 @@ _G.vim.b = setmetatable({}, {
 	end,
 })
 
--- Setzt den simulierten Puffer zurück; `lines` ist der Ausgangsinhalt.
+-- Resets the simulated buffer; `lines` is the initial content.
 function _G.vim._test.reset(lines)
 	_G.vim._test.lines = lines or { "" }
 	_G.vim._test.set_lines = nil

@@ -116,6 +116,8 @@ module-level caches.
 
 ## Development notes
 
+- Comments, test descriptions and documentation are written in English. Test
+  descriptions follow the `should` convention (`it("should find the block …")`).
 - Git operations use `io.popen` (shell calls), not Neovim's job API.
 - Neovim ≥ 0.7.0 is required.
 - The commented-out keymap in `plugin/insgitheader/init.lua` (`<Leader>ii`) is

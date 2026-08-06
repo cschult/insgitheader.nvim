@@ -1,12 +1,12 @@
 # InsGitHeader
 
-A [Neovim](https://github.com/neovim/neovim) plugin adding a user command
-which inserts filename, git repo name and author infos into comented lines
-on top of the current file.
+A [Neovim](https://github.com/neovim/neovim) plugin that adds a user command
+inserting the file name, the git repository and the author details as comment
+lines at the top of the current file.
 
 ## Features
 
-- adds three commented lines on top of the current file like:
+- adds three comment lines at the top of the current file, like this:
 
 ```lua
 -- file: /home/cs/files/src/insgitheader.nvim/lua/insgitheader/init.lua
@@ -14,7 +14,7 @@ on top of the current file.
 -- author: John Doe <user@example.com> 2024
 ```
 
-- places the header below a shebang or other prologue line, separated by a
+- places the header below a shebang or another prologue line, separated by a
   blank line, so the file stays executable:
 
 ```sh
@@ -33,20 +33,20 @@ set -euo pipefail
   rather than doubled.
 
 - updates the header in place instead of inserting a second one. Running
-  `:InsGitHeader` again refreshes file name and repository, and extends the
-  year into a range:
+  `:InsGitHeader` again refreshes the file name and the repository, and
+  extends the year into a range:
 
 ```
 -- author: John Doe <user@example.com> 2019-2024
 ```
 
-  If the previous author was somebody else, they are kept in the line:
+  If the previous author was someone else, they are kept in the line:
 
 ```
 -- author: John Doe <user@example.com> 2019-2024 (orig. Jane Roe <jane@example.com>)
 ```
 
-- handles VCSH managed repos
+- handles repositories managed by VCSH
 
 - marks files managed by [chezmoi](https://www.chezmoi.io/). Both the target
   file and its source file report the chezmoi repository, so the header is
@@ -58,9 +58,9 @@ set -euo pipefail
 # author: John Doe <user@example.com> 2024
 ```
 
-  The lookup is remembered per buffer in `b:insgitheader_chezmoi`, so
-  repeated calls in the same buffer cost no extra processes. It is dropped
-  again when the buffer is written or renamed, so a file that was added to
+  The lookup is cached per buffer in `b:insgitheader_chezmoi`, so repeated
+  calls in the same buffer cost no extra processes. The cache is dropped again
+  when the buffer is written or renamed, so a file that has been added to
   chezmoi in the meantime is picked up. To see what the plugin decided:
 
 ```vim
@@ -71,18 +71,18 @@ set -euo pipefail
 
 - Neovim >= **0.7.0**
 - Git
-- [chezmoi](https://www.chezmoi.io/) — optional, only for the chezmoi
+- [chezmoi](https://www.chezmoi.io/) — optional, needed only for the chezmoi
   detection. If it is not installed, nothing is marked and no error is shown;
   installing it mid-session starts working without restarting Neovim.
 
 ## Installation
 
-Install the theme with your preferred package manager, such as
+Install the plugin with your preferred package manager, such as
 [folke/lazy.nvim](https://github.com/folke/lazy.nvim):
 
 ```lua
 {
-    'headoop/insgitheader.nvim'
+    'headoop/insgitheader.nvim',
     lazy = false,
     opts = {},
 }
@@ -92,7 +92,7 @@ or
 
 ```lua
 {
-    'headoop/insgitheader.nvim'
+    'headoop/insgitheader.nvim',
     lazy = false,
     opts = {
         name = 'John Doe',
@@ -102,7 +102,7 @@ or
 }
 ```
 
-All options are optional.
+Every option is optional.
 
 | Option  | Values                | Default  | Meaning                                          |
 | ------- | --------------------- | -------- | ------------------------------------------------ |
@@ -110,7 +110,7 @@ All options are optional.
 | `email` | any string            | git config `user.email` | Author email address              |
 | `path`  | `'full'`, `'basename'`| `'full'` | Whether the `file:` line shows the whole path or only the file name |
 
-If `name` or `email` are unset, they are looked up from git config.
+If `name` or `email` is unset, it is read from the git config.
 
 With `path = 'basename'` the `file:` line is shortened:
 
@@ -126,9 +126,7 @@ and target still produce the same line.
 ## Usage
 
 ```vim
-
 :InsGitHeader
-
 ```
 
 The command inserts the header if there is none, and updates it if there is.
@@ -140,5 +138,5 @@ vim.keymap.set("n", "<Leader>ii", "<Cmd>InsGitHeader<CR>", { desc = "InsGitHeade
 
 ## Note
 
-I'm just learning to write a neovim plugin in lua.
-This is just a simple project for my personal use.
+I'm just learning to write a Neovim plugin in Lua.
+This is a simple project for my personal use.

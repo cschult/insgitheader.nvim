@@ -5,8 +5,8 @@ describe("get-chezmoi", function()
 
 	local SRC = "/home/user/.local/share/chezmoi"
 
-	-- Zählt jeden Aufruf mit und beantwortet ihn nach der ersten passenden
-	-- Regel; ohne Treffer kommt nil zurück.
+	-- Records every call and answers it by the first matching rule; without a
+	-- match nil comes back.
 	local function popen_mock(rules)
 		return function(cmd)
 			calls[#calls + 1] = cmd
@@ -36,7 +36,7 @@ describe("get-chezmoi", function()
 		return n
 	end
 
-	-- Der Standardfall: chezmoi ist da, /home/user/.bashrc ist verwaltet.
+	-- The standard case: chezmoi is there, /home/user/.bashrc is managed.
 	local function chezmoi_available()
 		return popen_mock({
 			{ "^chezmoi source%-path 2>", SRC },
@@ -60,8 +60,8 @@ describe("get-chezmoi", function()
 		io.popen = original_popen
 	end)
 
-	describe("Buffer-Cache", function()
-		it("beantwortet den zweiten Aufruf ohne Prozessstart", function()
+	describe("buffer cache", function()
+		it("should answer the second call without starting a process", function()
 			local is_chezmoi, repo = gc.lookup(1)
 			assert.is_true(is_chezmoi)
 			assert.are.equal(SRC, repo)
@@ -71,7 +71,7 @@ describe("get-chezmoi", function()
 			assert.are.equal(before, #calls)
 		end)
 
-		it("legt das Ergebnis in b:insgitheader_chezmoi ab", function()
+		it("should store the result in b:insgitheader_chezmoi", function()
 			gc.lookup(1)
 			local cached = vim.b[1].insgitheader_chezmoi
 			assert.are.equal("/home/user/.bashrc", cached.path)
@@ -79,7 +79,7 @@ describe("get-chezmoi", function()
 			assert.are.equal(SRC, cached.repo)
 		end)
 
-		it("cacht auch ein negatives Ergebnis", function()
+		it("should cache a negative result too", function()
 			vim._test.bufname = "/home/user/project/file.lua"
 			io.popen = popen_mock({
 				{ "^chezmoi source%-path 2>", SRC },
@@ -93,7 +93,7 @@ describe("get-chezmoi", function()
 			assert.is_false(vim.b[1].insgitheader_chezmoi.is_chezmoi)
 		end)
 
-		it("hält die Ergebnisse verschiedener Buffer auseinander", function()
+		it("should keep the results of different buffers apart", function()
 			vim._test.bufnames = {
 				[1] = "/home/user/.bashrc",
 				[2] = "/home/user/project/file.lua",
@@ -110,20 +110,20 @@ describe("get-chezmoi", function()
 			assert.is_false((gc.lookup(2)))
 		end)
 
-		it("fragt bei unbenanntem Buffer gar nicht erst nach", function()
+		it("should not even ask for an unnamed buffer", function()
 			vim._test.bufname = ""
 			assert.is_false((gc.lookup(1)))
 			assert.are.equal(0, count("^chezmoi"))
 		end)
 
-		it("löst 0 auf den aktuellen Buffer auf", function()
+		it("should resolve 0 to the current buffer", function()
 			gc.lookup(0)
 			assert.is_not_nil(vim.b[1].insgitheader_chezmoi)
 		end)
 	end)
 
-	describe("Selbstinvalidierung über den Pfad", function()
-		it("ermittelt neu wenn der Buffer-Name gewechselt hat", function()
+	describe("self-invalidation via the path", function()
+		it("should look up again if the buffer name has changed", function()
 			gc.lookup(1)
 			local before = #calls
 
@@ -135,7 +135,7 @@ describe("get-chezmoi", function()
 	end)
 
 	describe("invalidate()", function()
-		it("verwirft den Eintrag eines Buffers", function()
+		it("should drop the entry of one buffer", function()
 			gc.lookup(1)
 			assert.is_not_nil(vim.b[1].insgitheader_chezmoi)
 
@@ -143,7 +143,7 @@ describe("get-chezmoi", function()
 			assert.is_nil(vim.b[1].insgitheader_chezmoi)
 		end)
 
-		it("führt zu einer erneuten Abfrage", function()
+		it("should lead to another lookup", function()
 			gc.lookup(1)
 			local before = #calls
 
@@ -152,7 +152,7 @@ describe("get-chezmoi", function()
 			assert.is_true(#calls > before)
 		end)
 
-		it("lässt andere Buffer unangetastet", function()
+		it("should leave other buffers untouched", function()
 			vim._test.bufnames = { [1] = "/home/user/.bashrc", [2] = "/home/user/.bashrc" }
 			gc.lookup(1)
 			gc.lookup(2)
@@ -162,7 +162,7 @@ describe("get-chezmoi", function()
 			assert.is_not_nil(vim.b[2].insgitheader_chezmoi)
 		end)
 
-		it("stolpert nicht über einen ungültigen Buffer", function()
+		it("should not trip over an invalid buffer", function()
 			gc.lookup(1)
 			vim._test.invalid_bufs[1] = true
 			assert.has_no.errors(function()
@@ -171,22 +171,22 @@ describe("get-chezmoi", function()
 		end)
 	end)
 
-	describe("Source-Dir", function()
-		it("ermittelt das Source-Dir nur einmal pro Sitzung", function()
+	describe("source directory", function()
+		it("should determine the source directory only once per session", function()
 			vim._test.bufnames = { [1] = "/home/user/.bashrc", [2] = "/home/user/.bashrc" }
 			gc.lookup(1)
 			gc.lookup(2)
 			assert.are.equal(1, count("^chezmoi source%-path 2>"))
 		end)
 
-		it("behält das Source-Dir über invalidate() hinweg", function()
+		it("should keep the source directory across invalidate()", function()
 			gc.lookup(1)
 			gc.invalidate(1)
 			gc.lookup(1)
 			assert.are.equal(1, count("^chezmoi source%-path 2>"))
 		end)
 
-		it("schreibt einen Fehlversuch nicht fest", function()
+		it("should not pin down a failed probe", function()
 			io.popen = popen_mock({})
 			assert.is_false((gc.lookup(1)))
 			gc.invalidate(1)
@@ -194,7 +194,7 @@ describe("get-chezmoi", function()
 			assert.are.equal(2, count("^chezmoi source%-path 2>"))
 		end)
 
-		it("findet chezmoi das zweite Mal wenn es zwischenzeitlich auftaucht", function()
+		it("should find chezmoi the second time if it appears in between", function()
 			io.popen = popen_mock({})
 			assert.is_false((gc.lookup(1)))
 
@@ -203,7 +203,7 @@ describe("get-chezmoi", function()
 			assert.is_true((gc.lookup(1)))
 		end)
 
-		it("wird von reset() verworfen", function()
+		it("should be dropped by reset()", function()
 			gc.lookup(1)
 			gc.reset()
 			gc.invalidate(1)
@@ -212,8 +212,8 @@ describe("get-chezmoi", function()
 		end)
 	end)
 
-	describe("Auflösung", function()
-		it("liefert für eine Quelldatei den Zielpfad", function()
+	describe("resolution", function()
+		it("should return the target path for a source file", function()
 			vim._test.bufname = SRC .. "/dot_bashrc.tmpl"
 			local is_chezmoi, repo, target = gc.lookup(1)
 			assert.is_true(is_chezmoi)
@@ -221,7 +221,7 @@ describe("get-chezmoi", function()
 			assert.are.equal("/home/user/.bashrc", target)
 		end)
 
-		it("liefert für eine Datei im Source-Dir ohne Round-Trip keinen Zielpfad", function()
+		it("should return no target path for a file in the source directory without a round-trip", function()
 			vim._test.bufname = SRC .. "/README.md"
 			io.popen = popen_mock({
 				{ "^chezmoi source%-path 2>", SRC },
@@ -235,7 +235,7 @@ describe("get-chezmoi", function()
 			assert.is_nil(target)
 		end)
 
-		it("liefert für eine Target-Datei keinen Zielpfad", function()
+		it("should return no target path for a target file", function()
 			local is_chezmoi, _, target = gc.lookup(1)
 			assert.is_true(is_chezmoi)
 			assert.is_nil(target)

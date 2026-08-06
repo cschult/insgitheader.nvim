@@ -1,13 +1,13 @@
 local M = {}
 
--- Name der Buffer-Variable, in der das Ergebnis pro Buffer liegt. Sie stirbt
--- mit dem Buffer, darum braucht es kein Aufräum-Autocmd, und sie lässt sich
--- zur Diagnose mit :echo b:insgitheader_chezmoi ansehen.
+-- Name of the buffer variable holding the per-buffer result. It dies with the
+-- buffer, so no cleanup autocommand is needed, and it can be inspected for
+-- diagnostics with :echo b:insgitheader_chezmoi.
 local BUF_VAR = "insgitheader_chezmoi"
 
--- Das Source-Dir ist eine globale chezmoi-Einstellung und wird für die
--- Sitzung behalten. Ein Fehlversuch wird bewusst nicht festgeschrieben:
--- chezmoi kann mitten in der Sitzung installiert werden.
+-- The source directory is a global chezmoi setting and is kept for the
+-- session. A failed probe is deliberately not pinned down: chezmoi can be
+-- installed in the middle of a session.
 local source_dir = nil
 local source_repo = nil
 
@@ -38,15 +38,15 @@ local function probe()
 	end
 end
 
--- Verwirft den Sitzungs-Cache. Die Buffer-Caches bleiben davon unberührt,
--- die hängen an den Buffern selbst. Wird von den Tests gebraucht.
+-- Drops the session cache. The buffer caches are untouched by this, they sit
+-- on the buffers themselves. Used by the tests.
 function M.reset()
 	source_dir = nil
 	source_repo = nil
 end
 
--- Verwirft das Ergebnis eines einzelnen Buffers. Hängt in plugin/ an
--- BufFilePost und BufWritePost.
+-- Drops the result for a single buffer. Hooked up in plugin/ to BufFilePost
+-- and BufWritePost.
 function M.invalidate(bufnr)
 	if vim.api.nvim_buf_is_valid(bufnr) then
 		vim.b[bufnr][BUF_VAR] = nil
@@ -60,12 +60,12 @@ local function uncached_lookup(path)
 	end
 
 	if path:sub(1, #source_dir + 1) == source_dir .. "/" then
-		-- Quelldatei. `chezmoi target-path` ist eine reine Pfadtransformation und
-		-- antwortet auch für README.md oder .git/config im Source-Dir. Deshalb der
-		-- Round-Trip: nur wenn source-path wieder auf genau diese Datei zeigt, ist
-		-- es ein echter chezmoi-Eintrag und der Zielpfad belastbar. Für eine noch
-		-- nicht geschriebene Datei scheitert target-path; nach dem ersten :w wird
-		-- der Buffer-Cache verworfen und die Auflösung gelingt.
+		-- Source file. `chezmoi target-path` is a pure path transformation and
+		-- answers for README.md or .git/config in the source directory as well.
+		-- Hence the round-trip: only if source-path points back at exactly this
+		-- file is it a real chezmoi entry and the target path reliable. For a file
+		-- not written to disk yet target-path fails; after the first :w the buffer
+		-- cache is dropped and the resolution succeeds.
 		local target = popen_line("chezmoi target-path " .. sh_quote(path))
 		if target and popen_line("chezmoi source-path " .. sh_quote(target)) == path then
 			return true, source_repo, target
@@ -73,20 +73,20 @@ local function uncached_lookup(path)
 		return true, source_repo
 	end
 
-	-- Target-Datei: verwaltet, wenn chezmoi eine Quelldatei dazu kennt.
+	-- Target file: managed if chezmoi knows a source file for it.
 	if popen_line("chezmoi source-path " .. sh_quote(path)) then
 		return true, source_repo
 	end
 	return false
 end
 
--- Liefert is_chezmoi, repo, target_path für den Buffer `bufnr` (0 = aktueller).
---   repo         Git-Root des chezmoi-Source-Dirs (nil, falls kein Git-Repo)
---   target_path  gesetzt nur für Quelldateien mit gültigem Round-Trip
+-- Returns is_chezmoi, repo, target_path for buffer `bufnr` (0 = current one).
+--   repo         git root of the chezmoi source directory (nil if no git repo)
+--   target_path  set only for source files with a valid round-trip
 --
--- Das Ergebnis wird am Buffer gemerkt, positiv wie negativ. Der mitgespeicherte
--- Pfad macht den Eintrag selbstinvalidierend: wechselt der Buffer-Name, ohne
--- dass ein Event gefeuert hat, gilt er als Fehltreffer.
+-- The result is cached on the buffer, positive as well as negative. The path
+-- stored alongside it makes the entry self-invalidating: if the buffer name
+-- changes without an event firing, the entry counts as a miss.
 function M.lookup(bufnr)
 	bufnr = bufnr or 0
 	if bufnr == 0 then

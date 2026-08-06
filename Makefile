@@ -1,5 +1,5 @@
 .PHONY: test
 
-# Abhängigkeit: luarocks install busted
+# Dependency: luarocks install busted
 test:
 	busted tests/
