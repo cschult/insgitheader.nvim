@@ -45,6 +45,37 @@ describe("get-file-name", function()
 		assert.are.equal("", gfn.get_file_name())
 	end)
 
+	describe("mode 'basename'", function()
+		it("gibt nur den Dateinamen zurück", function()
+			vim._test.bufname = "/home/user/project/file.lua"
+			assert.are.equal("file.lua", gfn.get_file_name("basename"))
+		end)
+
+		it("kommt mit einem Pfad ohne Schrägstrich zurecht", function()
+			vim._test.bufname = "file.lua"
+			assert.are.equal("file.lua", gfn.get_file_name("basename"))
+		end)
+
+		it("gibt leeren String zurück für unbenannten Puffer", function()
+			vim._test.bufname = ""
+			assert.are.equal("", gfn.get_file_name("basename"))
+		end)
+
+		it("nimmt bei einer chezmoi-Quelldatei den Basename des Zielpfads", function()
+			vim._test.bufname = SRC .. "/dot_bashrc.tmpl"
+			io.popen = popen_mock({
+				{ "^chezmoi source%-path 2>", SRC },
+				{ "^chezmoi target%-path ", "/home/user/.bashrc" },
+				{ "^chezmoi source%-path ", SRC .. "/dot_bashrc.tmpl" },
+				{ "show%-toplevel", SRC },
+			})
+			package.loaded["insgitheader.helper.get-file-name"] = nil
+			package.loaded["insgitheader.helper.get-chezmoi"] = nil
+			gfn = require("insgitheader.helper.get-file-name")
+			assert.are.equal(".bashrc", gfn.get_file_name("basename"))
+		end)
+	end)
+
 	describe("chezmoi", function()
 		before_each(function()
 			package.loaded["insgitheader.helper.get-file-name"] = nil

@@ -48,6 +48,12 @@ _G.vim = {
 	notify = function(msg, level)
 		table.insert(_G.vim._test.notifications, { msg = msg, level = level })
 	end,
+	inspect = function(value)
+		if type(value) == "string" then
+			return '"' .. value .. '"'
+		end
+		return tostring(value)
+	end,
 	log = {
 		levels = { TRACE = 0, DEBUG = 1, INFO = 2, WARN = 3, ERROR = 4 },
 	},

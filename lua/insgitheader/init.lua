@@ -6,7 +6,10 @@ local fh = require("insgitheader.helper.find-header")
 local settings = {
 	name = ggc.get_git_user("name"),
 	email = ggc.get_git_user("email"),
+	path = "full",
 }
+
+local PATH_MODES = { full = true, basename = true }
 
 M.setup = function(opts)
 	opts = opts or {}
@@ -15,6 +18,16 @@ M.setup = function(opts)
 	end
 	if opts.email ~= nil then
 		settings.email = opts.email
+	end
+	if opts.path ~= nil then
+		if PATH_MODES[opts.path] then
+			settings.path = opts.path
+		else
+			vim.notify(
+				"insgitheader: unknown path option " .. vim.inspect(opts.path) .. ", expected 'full' or 'basename'",
+				vim.log.levels.WARN
+			)
+		end
 	end
 end
 
@@ -59,7 +72,7 @@ end
 
 local function build_block(cleft, cright, old_author)
 	local gfn = require("insgitheader.helper.get-file-name")
-	local line1 = cleft .. " file: " .. gfn.get_file_name() .. cright
+	local line1 = cleft .. " file: " .. gfn.get_file_name(settings.path) .. cright
 
 	local grn = require("insgitheader.helper.get-repo-name")
 	local repo, is_chezmoi = grn.get_repo_name()

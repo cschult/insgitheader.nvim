@@ -86,13 +86,32 @@ or
     lazy = false,
     opts = {
         name = 'John Doe',
-        email = 'jd@example.org'
+        email = 'jd@example.org',
+        path = 'full',
     },
 }
 ```
 
-Setting name and email is optional. If unset,
-name and email are looked up from git config.
+All options are optional.
+
+| Option  | Values                | Default  | Meaning                                          |
+| ------- | --------------------- | -------- | ------------------------------------------------ |
+| `name`  | any string            | git config `user.name`  | Author name                       |
+| `email` | any string            | git config `user.email` | Author email address              |
+| `path`  | `'full'`, `'basename'`| `'full'` | Whether the `file:` line shows the whole path or only the file name |
+
+If `name` or `email` are unset, they are looked up from git config.
+
+With `path = 'basename'` the `file:` line is shortened:
+
+```lua
+-- file: init.lua
+-- git: /home/cs/files/src/insgitheader.nvim
+-- author: John Doe <user@example.com> 2024
+```
+
+For a chezmoi source file the name is taken from the target path, so source
+and target still produce the same line.
 
 ## Usage
 
