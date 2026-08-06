@@ -46,7 +46,7 @@ function M.get_repo_name()
 				return repo, false
 			end
 		else
-			-- we ar not in a git dir
+			-- we are not in a git dir
 			return nil, false
 		end
 	end

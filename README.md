@@ -77,12 +77,12 @@ set -euo pipefail
 
 ## Installation
 
-Install the theme with your preferred package manager, such as
+Install the plugin with your preferred package manager, such as
 [folke/lazy.nvim](https://github.com/folke/lazy.nvim):
 
 ```lua
 {
-    'headoop/insgitheader.nvim'
+    'headoop/insgitheader.nvim',
     lazy = false,
     opts = {},
 }
@@ -92,7 +92,7 @@ or
 
 ```lua
 {
-    'headoop/insgitheader.nvim'
+    'headoop/insgitheader.nvim',
     lazy = false,
     opts = {
         name = 'John Doe',

@@ -1,7 +1,7 @@
 -- create user command 'InsGitHeader'
 vim.api.nvim_create_user_command("InsGitHeader", function()
 	require("insgitheader").insert_headers()
-end, { bang = true, desc = "insert some file info into the top" })
+end, { bang = true, desc = "insert some file info at the top" })
 
 -- The chezmoi result is cached per buffer. If the buffer changes its name
 -- (BufFilePost on :saveas or :file) or is written (BufWritePost), the result

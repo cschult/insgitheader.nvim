@@ -12,7 +12,7 @@ repository, and the name and email address of the author.
 
 Name and email address can be set as config options. If they are not set,
 they are read from the git config; if that fails as well, "unknown" and
-"unknown@example.com" are used.
+"unknown@example.org" are used.
 
 The year is the current year (taken from the system date).
 
@@ -121,7 +121,7 @@ Options:
 
     `email`  Set the author's email address. Optional. If omitted,
            |InsGitHeader| calls `git config user.email` to get the address;
-           failing that, it uses `unknown@example.com` as the address.
+           failing that, it uses `unknown@example.org` as the address.
 
     `path`  What the `file:` line shows. Optional, one of:
 
