@@ -13,14 +13,59 @@ _G.vim = {
 		nvim_buf_get_name = function(n)
 			return _G.vim._test.bufname
 		end,
+		nvim_buf_get_lines = function(buf, start, end_, strict)
+			local copy = {}
+			for i, line in ipairs(_G.vim._test.lines) do
+				copy[i] = line
+			end
+			return copy
+		end,
+		-- Wendet die Änderung wirklich auf _test.lines an, damit Tests das
+		-- Ergebnis prüfen können. Semantik wie in Neovim: start 0-basiert,
+		-- end_ exklusiv, negative Werte zählen vom Dateiende.
 		nvim_buf_set_lines = function(buf, start, end_, strict, lines)
+			local buffer = _G.vim._test.lines
+			if end_ < 0 then
+				end_ = #buffer + 1 + end_
+			end
+			local out = {}
+			for i = 1, start do
+				out[#out + 1] = buffer[i]
+			end
+			for _, line in ipairs(lines) do
+				out[#out + 1] = line
+			end
+			for i = end_ + 1, #buffer do
+				out[#out + 1] = buffer[i]
+			end
+			_G.vim._test.lines = out
 			_G.vim._test.set_lines = lines
 		end,
+		nvim_win_set_cursor = function(win, pos)
+			_G.vim._test.cursor = pos
+		end,
+	},
+	notify = function(msg, level)
+		table.insert(_G.vim._test.notifications, { msg = msg, level = level })
+	end,
+	log = {
+		levels = { TRACE = 0, DEBUG = 1, INFO = 2, WARN = 3, ERROR = 4 },
 	},
 	-- Werte die einzelne Tests überschreiben können
 	_test = {
 		commentstring = "-- %s",
 		bufname = "/test/file.lua",
+		lines = { "" },
 		set_lines = nil,
+		cursor = nil,
+		notifications = {},
 	},
 }
+
+-- Setzt den simulierten Puffer zurück; `lines` ist der Ausgangsinhalt.
+function _G.vim._test.reset(lines)
+	_G.vim._test.lines = lines or { "" }
+	_G.vim._test.set_lines = nil
+	_G.vim._test.cursor = nil
+	_G.vim._test.notifications = {}
+end

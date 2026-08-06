@@ -22,6 +22,68 @@ Usage:
 
     `:InsGitHeader`
 
+The command inserts the header if the file has none, and updates it if it
+has. No key mapping is set up by the plugin; bind it yourself, for example:
+>
+    vim.keymap.set('n', '<Leader>ii', '<Cmd>InsGitHeader<CR>')
+<
+                                                    *insgitheader-placement*
+Placement:
+
+If the file starts with a line that has to stay on top, the header is put
+below it, separated by a blank line, so the file keeps working. Recognised
+are `#!` , `<?xml` , `<?php` , an encoding declaration such as
+`# -*- coding: utf-8 -*-` and `@charset` . At most the first two lines are
+treated this way. Blank lines that are already there are reused instead of
+doubled.
+>
+    #!/usr/bin/env bash
+
+    # file: /home/jd/bin/backup.sh
+    # git: /home/jd/dotfiles
+    # author: John Doe <jd@example.com> 2024
+
+    set -euo pipefail
+<
+                                                       *insgitheader-update*
+Update:
+
+An existing header is recognised by three consecutive `file:` , `git:` and
+`author:` lines right below the prologue, starting with the comment
+character of the current 'commentstring'. Those three lines are replaced;
+everything around them stays untouched.
+
+The year of the old header is carried over and extended into a range, for
+example `2019` becomes `2019-2024` . If the old header names a different
+author, that author is appended to a chain, oldest first:
+>
+    -- author: John Doe <jd@example.com> 2019-2024 (orig. Jane Roe <jr@example.com>)
+<
+Note: if 'commentstring' has changed since the header was written, the old
+header is not recognised and a second one is inserted above it.
+
+If an existing header sits above a shebang, it is updated where it is and a
+warning is issued, since the shebang has no effect in that position.
+
+                                                      *insgitheader-chezmoi*
+chezmoi:
+
+Files managed by chezmoi (https://www.chezmoi.io/) are marked in the `git:`
+line. This covers both the target file and its source file in the chezmoi
+source directory:
+>
+    # file: /home/jd/.bashrc
+    # git: /home/jd/.local/share/chezmoi (managed by chezmoi)
+    # author: John Doe <jd@example.com> 2024
+<
+For a source file the `file:` line shows the target path, so the header is
+identical in source and target and `chezmoi apply` produces no diff. Files
+inside the source directory that are not chezmoi entries, such as README.md,
+keep their real path.
+
+chezmoi is optional. If the executable is not found, the detection is
+disabled silently for the rest of the session.
+
                                                         *insgitheader.setup()*
 Configuration:
 >
@@ -44,8 +106,10 @@ How it looks:
 >
     -- file: /home/jd/foo.git/bar.lua
     -- git: /home/jd/foo.git
-    -- author: Johne Doe <jd@example.com> 2024
+    -- author: John Doe <jd@example.com> 2024
 <
+See also |insgitheader-placement| , |insgitheader-update| and
+|insgitheader-chezmoi| .
 
 
 
