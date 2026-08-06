@@ -5,37 +5,36 @@ Insert file header
 ============================================================================
                                                            *insgitheader.nvim*
 
-This plugin inserts some information as a comment into the top of the file.
+This plugin inserts some information as a comment at the top of the file.
 
-The information added is the file name and path, the name of the git
-repository and name and email address of the author.
+The information added is the file name and its path, the name of the git
+repository, and the name and email address of the author.
 
-Name and email address can be set as config option or else are tried to read
-from git config or else just print "unknown" and "unknown@example.com" for
-author name and email.
+Name and email address can be set as config options. If they are not set,
+they are read from the git config; if that fails as well, "unknown" and
+"unknown@example.com" are used.
 
-The year is the actual year (from system date).
+The year is the current year (taken from the system date).
 
 ============================================================================
-                                                               *InsGitHeader*
+                                                                *InsGitHeader*
 Usage:
 
     `:InsGitHeader`
 
 The command inserts the header if the file has none, and updates it if it
-has. No key mapping is set up by the plugin; bind it yourself, for example:
+has one. No key mapping is set up by the plugin; bind it yourself, e.g.:
 >
     vim.keymap.set('n', '<Leader>ii', '<Cmd>InsGitHeader<CR>')
 <
-                                                    *insgitheader-placement*
+                                                      *insgitheader-placement*
 Placement:
 
-If the file starts with a line that has to stay on top, the header is put
+If the file starts with a line that has to stay at the top, the header is put
 below it, separated by a blank line, so the file keeps working. Recognised
-are `#!` , `<?xml` , `<?php` , an encoding declaration such as
+prologue lines are `#!` , `<?xml` , `<?php` , an encoding declaration such as
 `# -*- coding: utf-8 -*-` and `@charset` . At most the first two lines are
-treated this way. Blank lines that are already there are reused instead of
-doubled.
+treated this way. Existing blank lines are reused instead of doubled.
 >
     #!/usr/bin/env bash
 
@@ -45,7 +44,7 @@ doubled.
 
     set -euo pipefail
 <
-                                                       *insgitheader-update*
+                                                         *insgitheader-update*
 Update:
 
 An existing header is recognised by three consecutive `file:` , `git:` and
@@ -65,7 +64,7 @@ header is not recognised and a second one is inserted above it.
 If an existing header sits above a shebang, it is updated where it is and a
 warning is issued, since the shebang has no effect in that position.
 
-                                                      *insgitheader-chezmoi*
+                                                        *insgitheader-chezmoi*
 chezmoi:
 
 Files managed by chezmoi (https://www.chezmoi.io/) are marked in the `git:`
@@ -85,14 +84,14 @@ chezmoi is optional. If the executable is not found, nothing is marked and no
 error is shown. The plugin keeps trying, so installing chezmoi mid-session
 starts working without restarting Neovim.
 
-                                                *b:insgitheader_chezmoi*
-The result of the chezmoi lookup is remembered per buffer in the buffer
-variable `b:insgitheader_chezmoi` , so repeated calls in the same buffer cost
-no extra processes. Inspect it with:
+                                                      *b:insgitheader_chezmoi*
+The result of the chezmoi lookup is cached per buffer in the buffer variable
+`b:insgitheader_chezmoi` , so repeated calls in the same buffer cost no extra
+processes. Inspect it with:
 >
     :echo b:insgitheader_chezmoi
 <
-It holds the path it was determined for, whether the file is managed, the
+It holds the path it was looked up for, whether the file is managed, the
 chezmoi repository and, for a source file, the target path.
 
 The entry is dropped, and the lookup runs again, when
@@ -116,13 +115,13 @@ Configuration:
 <
 Options:
 
-    `name`  Set author name. Optional. If omitted, |InsGitHeader| will call
-          `git config user.name` to get the name, else it will use
-          `unknown` as author name.
+    `name`  Set the author name. Optional. If omitted, |InsGitHeader| calls
+          `git config user.name` to get the name; failing that, it uses
+          `unknown` as the author name.
 
-    `email`  Set authors email address. Optional. If omitted, |InsGitHeader|
-           will call `git config user.email` to get the address, else it will
-           use `unknown@example.com` as authors email address.
+    `email`  Set the author's email address. Optional. If omitted,
+           |InsGitHeader| calls `git config user.email` to get the address;
+           failing that, it uses `unknown@example.com` as the address.
 
     `path`  What the `file:` line shows. Optional, one of:
 
