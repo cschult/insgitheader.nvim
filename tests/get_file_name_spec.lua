@@ -25,6 +25,8 @@ describe("get-file-name", function()
 	before_each(function()
 		package.loaded["insgitheader.helper.get-file-name"] = nil
 		package.loaded["insgitheader.helper.get-chezmoi"] = nil
+		-- Der chezmoi-Cache hängt an den Buffern, nicht am Modul
+		vim._test.buffer_vars = {}
 		original_popen = io.popen
 		-- Vorgabe: chezmoi ist nicht installiert
 		io.popen = popen_mock({})

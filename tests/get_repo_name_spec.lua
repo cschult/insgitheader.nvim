@@ -26,6 +26,8 @@ describe("get-repo-name", function()
 	before_each(function()
 		package.loaded["insgitheader.helper.get-repo-name"] = nil
 		package.loaded["insgitheader.helper.get-chezmoi"] = nil
+		-- Der chezmoi-Cache hängt an den Buffern, nicht am Modul
+		vim._test.buffer_vars = {}
 		original_popen = io.popen
 		original_getenv = os.getenv
 		os.getenv = function()
@@ -130,7 +132,9 @@ describe("get-repo-name", function()
 			assert.is_false(is_chezmoi)
 		end)
 
-		it("fragt chezmoi nicht mehr wenn es nicht installiert ist", function()
+		it("probiert es erneut wenn chezmoi nicht installiert ist", function()
+			-- Ein fehlgeschlagener Versuch wird bewusst nicht festgeschrieben:
+			-- chezmoi kann mitten in der Sitzung installiert werden.
 			local calls = 0
 			io.popen = function(cmd)
 				if cmd:match("^chezmoi") then
@@ -153,7 +157,33 @@ describe("get-repo-name", function()
 			grn.get_repo_name()
 			vim._test.bufname = "/home/user/anderes/file.lua"
 			grn.get_repo_name()
-			assert.are.equal(1, calls)
+			assert.are.equal(2, calls)
+		end)
+
+		it("beantwortet denselben Buffer beim zweiten Mal ohne chezmoi-Aufruf", function()
+			io.popen = popen_mock({
+				{ "^chezmoi source%-path 2>", SRC },
+				{ "^chezmoi source%-path ", SRC .. "/dot_bashrc.tmpl" },
+				{ "show%-toplevel", SRC },
+			})
+			vim._test.bufname = "/home/user/.bashrc"
+			grn = require("insgitheader.helper.get-repo-name")
+			assert.are.equal(SRC, (grn.get_repo_name()))
+
+			local seen = 0
+			io.popen = function(cmd)
+				seen = seen + 1
+				return {
+					read = function()
+						return nil
+					end,
+					close = function() end,
+				}
+			end
+			local repo, is_chezmoi = grn.get_repo_name()
+			assert.are.equal(SRC, repo)
+			assert.is_true(is_chezmoi)
+			assert.are.equal(0, seen)
 		end)
 	end)
 end)

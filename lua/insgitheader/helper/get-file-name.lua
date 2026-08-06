@@ -11,7 +11,7 @@ local chezmoi = require("insgitheader.helper.get-chezmoi")
 -- genommen, damit Quelle und Ziel auch hier dieselbe Zeile bekommen.
 function M.get_file_name(mode)
 	local bufname = vim.api.nvim_buf_get_name(0)
-	local is_chezmoi, _, target = chezmoi.lookup(bufname)
+	local is_chezmoi, _, target = chezmoi.lookup(0)
 	local name = (is_chezmoi and target) and target or bufname
 	if mode == "basename" then
 		return name:match("[^/]+$") or name

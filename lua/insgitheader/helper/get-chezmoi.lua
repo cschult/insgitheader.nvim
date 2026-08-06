@@ -1,19 +1,15 @@
 local M = {}
 
--- Das chezmoi-Source-Dir wechselt innerhalb einer Neovim-Sitzung praktisch nie,
--- jeder Aufruf kostet aber einen Prozessstart. Darum wird einmal gesondiert und
--- das Ergebnis für die restliche Sitzung behalten. Fehlt chezmoi, bleibt
--- source_dir nil und die Erkennung ist damit dauerhaft stillgelegt.
-local probed = false
+-- Name der Buffer-Variable, in der das Ergebnis pro Buffer liegt. Sie stirbt
+-- mit dem Buffer, darum braucht es kein Aufräum-Autocmd, und sie lässt sich
+-- zur Diagnose mit :echo b:insgitheader_chezmoi ansehen.
+local BUF_VAR = "insgitheader_chezmoi"
+
+-- Das Source-Dir ist eine globale chezmoi-Einstellung und wird für die
+-- Sitzung behalten. Ein Fehlversuch wird bewusst nicht festgeschrieben:
+-- chezmoi kann mitten in der Sitzung installiert werden.
 local source_dir = nil
 local source_repo = nil
-
--- Ergebnis des letzten Pfads, damit get-file-name und get-repo-name innerhalb
--- eines :InsGitHeader nicht doppelt nachfragen. Bewusst nur ein Eintrag: so
--- bleibt die Antwort über Aufrufe hinweg frisch, falls du zwischendurch
--- `chezmoi add` benutzt.
-local last_path = nil
-local last_result = nil
 
 local function sh_quote(s)
 	return "'" .. (s:gsub("'", "'\\''")) .. "'"
@@ -33,23 +29,28 @@ local function popen_line(cmd)
 end
 
 local function probe()
-	if probed then
+	if source_dir then
 		return
 	end
-	probed = true
 	source_dir = popen_line("chezmoi source-path")
 	if source_dir then
 		source_repo = popen_line("cd " .. sh_quote(source_dir) .. " && git rev-parse --show-toplevel")
 	end
 end
 
--- Verwirft alle Caches. Wird von den Tests gebraucht.
+-- Verwirft den Sitzungs-Cache. Die Buffer-Caches bleiben davon unberührt,
+-- die hängen an den Buffern selbst. Wird von den Tests gebraucht.
 function M.reset()
-	probed = false
 	source_dir = nil
 	source_repo = nil
-	last_path = nil
-	last_result = nil
+end
+
+-- Verwirft das Ergebnis eines einzelnen Buffers. Hängt in plugin/ an
+-- BufFilePost und BufWritePost.
+function M.invalidate(bufnr)
+	if vim.api.nvim_buf_is_valid(bufnr) then
+		vim.b[bufnr][BUF_VAR] = nil
+	end
 end
 
 local function uncached_lookup(path)
@@ -62,7 +63,9 @@ local function uncached_lookup(path)
 		-- Quelldatei. `chezmoi target-path` ist eine reine Pfadtransformation und
 		-- antwortet auch für README.md oder .git/config im Source-Dir. Deshalb der
 		-- Round-Trip: nur wenn source-path wieder auf genau diese Datei zeigt, ist
-		-- es ein echter chezmoi-Eintrag und der Zielpfad belastbar.
+		-- es ein echter chezmoi-Eintrag und der Zielpfad belastbar. Für eine noch
+		-- nicht geschriebene Datei scheitert target-path; nach dem ersten :w wird
+		-- der Buffer-Cache verworfen und die Auflösung gelingt.
 		local target = popen_line("chezmoi target-path " .. sh_quote(path))
 		if target and popen_line("chezmoi source-path " .. sh_quote(target)) == path then
 			return true, source_repo, target
@@ -77,18 +80,37 @@ local function uncached_lookup(path)
 	return false
 end
 
--- Liefert is_chezmoi, repo, target_path.
+-- Liefert is_chezmoi, repo, target_path für den Buffer `bufnr` (0 = aktueller).
 --   repo         Git-Root des chezmoi-Source-Dirs (nil, falls kein Git-Repo)
 --   target_path  gesetzt nur für Quelldateien mit gültigem Round-Trip
-function M.lookup(path)
-	if not path or path == "" then
-		return false
+--
+-- Das Ergebnis wird am Buffer gemerkt, positiv wie negativ. Der mitgespeicherte
+-- Pfad macht den Eintrag selbstinvalidierend: wechselt der Buffer-Name, ohne
+-- dass ein Event gefeuert hat, gilt er als Fehltreffer.
+function M.lookup(bufnr)
+	bufnr = bufnr or 0
+	if bufnr == 0 then
+		bufnr = vim.api.nvim_get_current_buf()
 	end
-	if path ~= last_path then
-		last_path = path
-		last_result = { uncached_lookup(path) }
+	local path = vim.api.nvim_buf_get_name(bufnr)
+
+	local cached = vim.b[bufnr][BUF_VAR]
+	if cached and cached.path == path then
+		return cached.is_chezmoi, cached.repo, cached.target
 	end
-	return last_result[1], last_result[2], last_result[3]
+
+	local is_chezmoi, repo, target = false, nil, nil
+	if path ~= "" then
+		is_chezmoi, repo, target = uncached_lookup(path)
+	end
+
+	vim.b[bufnr][BUF_VAR] = {
+		path = path,
+		is_chezmoi = is_chezmoi,
+		repo = repo,
+		target = target,
+	}
+	return is_chezmoi, repo, target
 end
 
 return M

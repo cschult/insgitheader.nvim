@@ -58,12 +58,22 @@ set -euo pipefail
 # author: John Doe <user@example.com> 2024
 ```
 
+  The lookup is remembered per buffer in `b:insgitheader_chezmoi`, so
+  repeated calls in the same buffer cost no extra processes. It is dropped
+  again when the buffer is written or renamed, so a file that was added to
+  chezmoi in the meantime is picked up. To see what the plugin decided:
+
+```vim
+:echo b:insgitheader_chezmoi
+```
+
 ## Requirements
 
 - Neovim >= **0.7.0**
 - Git
 - [chezmoi](https://www.chezmoi.io/) — optional, only for the chezmoi
-  detection. If it is not installed, the detection is disabled silently.
+  detection. If it is not installed, nothing is marked and no error is shown;
+  installing it mid-session starts working without restarting Neovim.
 
 ## Installation
 

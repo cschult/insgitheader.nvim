@@ -10,8 +10,23 @@ _G.vim = {
 		nvim_get_option_value = function(name, opts)
 			return _G.vim._test.commentstring
 		end,
+		-- Einzelne Tests können pro Buffer einen Namen in _test.bufnames
+		-- hinterlegen; sonst gilt für alle Buffer _test.bufname.
 		nvim_buf_get_name = function(n)
-			return _G.vim._test.bufname
+			return _G.vim._test.bufnames[n] or _G.vim._test.bufname
+		end,
+		nvim_buf_is_valid = function(n)
+			return _G.vim._test.invalid_bufs[n] ~= true
+		end,
+		nvim_create_augroup = function(name, opts)
+			_G.vim._test.augroups[#_G.vim._test.augroups + 1] = { name = name, opts = opts }
+			return name
+		end,
+		nvim_create_autocmd = function(event, opts)
+			_G.vim._test.autocmds[#_G.vim._test.autocmds + 1] = { event = event, opts = opts }
+		end,
+		nvim_create_user_command = function(name, fn, opts)
+			_G.vim._test.commands[name] = { fn = fn, opts = opts }
 		end,
 		nvim_buf_get_lines = function(buf, start, end_, strict)
 			local copy = {}
@@ -61,12 +76,28 @@ _G.vim = {
 	_test = {
 		commentstring = "-- %s",
 		bufname = "/test/file.lua",
+		bufnames = {},
+		invalid_bufs = {},
 		lines = { "" },
 		set_lines = nil,
 		cursor = nil,
 		notifications = {},
+		augroups = {},
+		autocmds = {},
+		commands = {},
+		buffer_vars = {},
 	},
 }
+
+-- vim.b[bufnr] verhält sich wie in Neovim: Zuweisungen bleiben am Buffer
+-- hängen, Löschen und nie gesetzte Schlüssel liefern nil.
+_G.vim.b = setmetatable({}, {
+	__index = function(_, bufnr)
+		local vars = _G.vim._test.buffer_vars
+		vars[bufnr] = vars[bufnr] or {}
+		return vars[bufnr]
+	end,
+})
 
 -- Setzt den simulierten Puffer zurück; `lines` ist der Ausgangsinhalt.
 function _G.vim._test.reset(lines)
@@ -74,4 +105,10 @@ function _G.vim._test.reset(lines)
 	_G.vim._test.set_lines = nil
 	_G.vim._test.cursor = nil
 	_G.vim._test.notifications = {}
+	_G.vim._test.bufnames = {}
+	_G.vim._test.invalid_bufs = {}
+	_G.vim._test.augroups = {}
+	_G.vim._test.autocmds = {}
+	_G.vim._test.commands = {}
+	_G.vim._test.buffer_vars = {}
 end
