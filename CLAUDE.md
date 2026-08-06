@@ -66,7 +66,9 @@ Call `reset()` to clear both caches (used by the tests).
 `plugin/` runs at Neovim startup and lazily loads `lua/insgitheader/` on first
 use. The `setup(opts)` function in the core module accepts optional `name` and
 `email` overrides; if not provided, they are read from `git config` at module
-load time.
+load time. It also accepts `path`, which is `"full"` (path and file name, the
+default) or `"basename"` (file name only) and is passed through to
+`get_file_name(mode)`. An unknown value is ignored with a warning.
 
 ## Tests
 

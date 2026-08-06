@@ -89,7 +89,8 @@ Configuration:
 >
     require('insgitheader').setup {
             name = 'John Doe',
-            email = 'jd@example.com'
+            email = 'jd@example.com',
+            path = 'full'
     }
 <
 Options:
@@ -101,6 +102,20 @@ Options:
     `email`  Set authors email address. Optional. If omitted, |InsGitHeader|
            will call `git config user.email` to get the address, else it will
            use `unknown@example.com` as authors email address.
+
+    `path`  What the `file:` line shows. Optional, one of:
+
+           `full`      path and file name (default)
+           `basename`  file name only
+
+          Any other value is ignored with a warning. For a chezmoi source
+          file the name is taken from the target path, so source and target
+          still produce the same line. Example with `basename` :
+>
+    -- file: init.lua
+    -- git: /home/jd/foo.git
+    -- author: John Doe <jd@example.com> 2024
+<
 
 How it looks:
 >

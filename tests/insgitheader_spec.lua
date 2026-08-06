@@ -74,6 +74,46 @@ describe("insgitheader", function()
 			assert.truthy(vim._test.lines[3]:match("Test User"))
 			assert.truthy(vim._test.lines[3]:match("test@example%.com"))
 		end)
+
+		it("schreibt vorgabegemäß den vollständigen Pfad", function()
+			ins.setup({})
+			ins.insert_headers()
+			assert.are.equal("-- file: /project/src/file.lua", vim._test.lines[1])
+		end)
+
+		it("schreibt mit path='basename' nur den Dateinamen", function()
+			ins.setup({ path = "basename" })
+			ins.insert_headers()
+			assert.are.equal("-- file: file.lua", vim._test.lines[1])
+		end)
+
+		it("schreibt mit path='full' den vollständigen Pfad", function()
+			ins.setup({ path = "full" })
+			ins.insert_headers()
+			assert.are.equal("-- file: /project/src/file.lua", vim._test.lines[1])
+		end)
+
+		it("warnt bei unbekanntem path-Wert und behält die Vorgabe", function()
+			ins.setup({ path = "relative" })
+			ins.insert_headers()
+			assert.are.equal(1, #vim._test.notifications)
+			assert.truthy(vim._test.notifications[1].msg:match("unknown path option"))
+			assert.are.equal(vim.log.levels.WARN, vim._test.notifications[1].level)
+			assert.are.equal("-- file: /project/src/file.lua", vim._test.lines[1])
+		end)
+
+		it("aktualisiert einen bestehenden Header nach path='basename'", function()
+			vim._test.reset({
+				"-- file: /project/src/file.lua",
+				"-- git: /project",
+				"-- author: Test User <test@example.com> 2026",
+				"",
+			})
+			ins.setup({ path = "basename" })
+			ins.insert_headers()
+			assert.are.equal("-- file: file.lua", vim._test.lines[1])
+			assert.are.equal(4, #vim._test.lines)
+		end)
 	end)
 
 	describe("insert_headers()", function()
