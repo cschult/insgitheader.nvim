@@ -2,13 +2,13 @@ local M = {}
 
 local chezmoi = require("insgitheader.helper.get-chezmoi")
 
--- Für chezmoi-Quelldateien wird der Zielpfad ausgewiesen statt des Quellpfads.
--- Damit ist der Header in Quelle und Ziel byte-identisch und `chezmoi apply`
--- erzeugt an dieser Stelle keinen Diff.
+-- For chezmoi source files the target path is shown instead of the source
+-- path. That makes the header byte-identical in source and target, so
+-- `chezmoi apply` produces no diff at this spot.
 --
--- `mode` ist "full" (Vorgabe) für Pfad plus Dateiname oder "basename" für nur
--- den Dateinamen. Bei chezmoi-Quelldateien wird der Basename aus dem Zielpfad
--- genommen, damit Quelle und Ziel auch hier dieselbe Zeile bekommen.
+-- `mode` is "full" (the default) for path plus file name, or "basename" for
+-- the file name only. For chezmoi source files the basename is taken from the
+-- target path, so that source and target get the same line here as well.
 function M.get_file_name(mode)
 	local bufname = vim.api.nvim_buf_get_name(0)
 	local is_chezmoi, _, target = chezmoi.lookup(0)

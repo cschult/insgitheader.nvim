@@ -35,9 +35,9 @@ local function is_blank(line)
 	return line:match("^%s*$") ~= nil
 end
 
--- Vergleicht zwei Autorenangaben nachsichtig, damit ein Formatunterschied
--- (etwa eine Adresse ohne spitze Klammern aus einem älteren Header) nicht als
--- Autorwechsel durchgeht und eine unsinnige Kette anlegt.
+-- Compares two author entries leniently, so that a difference in format (an
+-- address without angle brackets from an older header, say) does not pass as
+-- a change of author and start a pointless chain.
 local function same_person(a, b)
 	local function norm(s)
 		return (s:gsub("[<>]", ""):gsub("%s+", " "))
@@ -57,7 +57,7 @@ local function build_author(cleft, cright, old_line)
 			years = first_year .. "-" .. year
 		end
 		chain = previous_chain
-		-- Wer abgelöst wird, rutscht ans Ende der Kette; ältester zuerst.
+		-- Whoever is displaced moves to the end of the chain; oldest first.
 		if previous and not same_person(previous, who) then
 			chain = chain and (chain .. ", " .. previous) or previous
 		end
@@ -96,9 +96,9 @@ M.insert_headers = function()
 	-- get comment signs
 	local gcc = require("insgitheader.helper.get-comment-chars")
 	local cleft, cright = gcc.get_comment_chars()
-	-- get_comment_chars liefert die Zeichen samt Randleerzeichen aus
-	-- commentstring ("-- ", " */"). Wir setzen unsere eigenen Trenner, darum
-	-- hier abschneiden, sonst entstehen doppelte Leerzeichen.
+	-- get_comment_chars returns the characters with their padding from
+	-- commentstring ("-- ", " */"). We add our own separators, so trim it here,
+	-- otherwise the spaces end up doubled.
 	cleft = cleft and (cleft:gsub("%s+$", "")) or ""
 	if cleft == "" then
 		cleft = "#"
@@ -112,7 +112,7 @@ M.insert_headers = function()
 	local first, last = fh.find_block(lines, cleft)
 
 	if first then
-		-- Header vorhanden: nur die drei Zeilen ersetzen, Umgebung unangetastet.
+		-- Header present: replace just the three lines, leave the rest alone.
 		local block = build_block(cleft, cright, lines[last])
 		vim.api.nvim_buf_set_lines(0, first - 1, last, false, block)
 		if fh.prolog_below(lines, last) then
@@ -130,8 +130,8 @@ M.insert_headers = function()
 	local header_at = pos
 
 	if pos > 1 then
-		-- Leerzeile zwischen Prolog und Header; eine vorhandene wird
-		-- wiederverwendet statt eine zweite einzufügen.
+		-- Blank line between prologue and header; an existing one is reused
+		-- instead of inserting a second one.
 		if lines[pos] and is_blank(lines[pos]) then
 			pos = pos + 1
 			header_at = pos
@@ -141,7 +141,7 @@ M.insert_headers = function()
 		end
 	end
 
-	-- Dasselbe am unteren Ende des Blocks.
+	-- The same at the bottom end of the block.
 	if not (lines[pos] and is_blank(lines[pos])) then
 		table.insert(block, "")
 	end

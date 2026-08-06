@@ -4,7 +4,7 @@ describe("insgitheader", function()
 	local original_getenv
 
 	before_each(function()
-		-- Alle gecachten Module verwerfen
+		-- Drop all cached modules
 		package.loaded["insgitheader"] = nil
 		package.loaded["insgitheader.helper.get-comment-chars"] = nil
 		package.loaded["insgitheader.helper.get-file-name"] = nil
@@ -20,8 +20,8 @@ describe("insgitheader", function()
 		vim._test.bufname = "/project/src/file.lua"
 		vim._test.reset({ "local x = 1" })
 
-		-- io.popen-Mock: antwortet auf die einzelnen git-Befehle. chezmoi ist
-		-- hier nicht installiert, das deckt der eigene Block weiter unten ab.
+		-- io.popen mock: answers the individual git commands. chezmoi is not
+		-- installed here, that is covered by its own block further down.
 		io.popen = function(cmd)
 			local result
 			if cmd:match("^chezmoi") then

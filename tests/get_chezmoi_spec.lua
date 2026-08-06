@@ -5,8 +5,8 @@ describe("get-chezmoi", function()
 
 	local SRC = "/home/user/.local/share/chezmoi"
 
-	-- Zählt jeden Aufruf mit und beantwortet ihn nach der ersten passenden
-	-- Regel; ohne Treffer kommt nil zurück.
+	-- Records every call and answers it by the first matching rule; without a
+	-- match nil comes back.
 	local function popen_mock(rules)
 		return function(cmd)
 			calls[#calls + 1] = cmd
@@ -36,7 +36,7 @@ describe("get-chezmoi", function()
 		return n
 	end
 
-	-- Der Standardfall: chezmoi ist da, /home/user/.bashrc ist verwaltet.
+	-- The standard case: chezmoi is there, /home/user/.bashrc is managed.
 	local function chezmoi_available()
 		return popen_mock({
 			{ "^chezmoi source%-path 2>", SRC },

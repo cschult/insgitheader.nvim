@@ -1,10 +1,10 @@
 local M = {}
 
--- Zeilen, die zwingend am Dateianfang stehen müssen; der Header wird darunter
--- einsortiert. Der Scan ist hart auf zwei Zeilen begrenzt: die coding-
--- Deklaration ist laut PEP 263 ohnehin nur in Zeile 1 oder 2 gültig, und die
--- Grenze verhindert, dass ein zufällig passender Kommentar weiter unten den
--- Header nach hinten schiebt.
+-- Lines that must stay at the start of the file; the header is placed below
+-- them. The scan is hard-limited to two lines: per PEP 263 the coding
+-- declaration is only valid in line 1 or 2 anyway, and the limit keeps a
+-- coincidentally matching comment further down from pushing the header
+-- towards the end of the file.
 local PROLOG_PATTERNS = {
 	"^#!",
 	"^<%?xml",
@@ -24,7 +24,7 @@ function M.is_prolog(line)
 	return false
 end
 
--- Anzahl der zusammenhängenden Prolog-Zeilen am Dateianfang.
+-- Number of consecutive prologue lines at the start of the file.
 function M.prolog_length(lines)
 	local n = 0
 	while n < MAX_PROLOG_LINES and lines[n + 1] and M.is_prolog(lines[n + 1]) do
@@ -41,10 +41,10 @@ local function is_blank(line)
 	return line:match("^%s*$") ~= nil
 end
 
--- Sucht den zusammenhängenden Dreierblock file:/git:/author: direkt hinter dem
--- Prolog, führende Leerzeilen überspringend. Weiter unten wird nicht gesucht,
--- damit kein fremder Kommentarblock erwischt wird.
--- Rückgabe: erste und letzte Zeilennummer (1-basiert) oder nil.
+-- Looks for the three consecutive file:/git:/author: lines directly below the
+-- prologue, skipping leading blank lines. It does not search further down, so
+-- that no unrelated comment block is picked up.
+-- Returns: first and last line number (1-based) or nil.
 function M.find_block(lines, cleft)
 	local prefix = "^%s*" .. escape(cleft) .. "%s*"
 	local i = M.prolog_length(lines) + 1
@@ -63,8 +63,8 @@ function M.find_block(lines, cleft)
 	return i, i + 2
 end
 
--- Steht hinter dem Block (Leerzeilen ignoriert) eine Prolog-Zeile? Dann wurde
--- der Header seinerzeit darüber eingefügt und der Shebang ist wirkungslos.
+-- Is there a prologue line below the block (blank lines ignored)? Then the
+-- header was once inserted above it and the shebang has no effect.
 function M.prolog_below(lines, last)
 	local i = last + 1
 	while lines[i] and is_blank(lines[i]) do
@@ -73,8 +73,8 @@ function M.prolog_below(lines, last)
 	return lines[i] ~= nil and M.is_prolog(lines[i])
 end
 
--- Zerlegt eine bestehende author-Zeile.
--- Rückgabe: erstes Jahr, bisheriger Autor, bereits vorhandene Vorautoren-Kette.
+-- Splits an existing author line into its parts.
+-- Returns: first year, current author, existing previous-author chain.
 function M.parse_author(line)
 	local body = line:match("author:%s*(.*)$")
 	if not body then
@@ -84,9 +84,9 @@ function M.parse_author(line)
 	if chain then
 		body = (body:gsub("%s*%(orig%..-%)", ""))
 	end
-	-- Das Jahresfeld ist das letzte Token, das für sich genommen ein Jahr oder
-	-- ein Jahresbereich ist. Nicht das erste Vierziffernpaar: E-Mail-Adressen
-	-- wie 12900332+user@example.com fangen durchaus mit Ziffern an.
+	-- The year field is the last token that on its own is a year or a year
+	-- range. Not the first group of four digits: email addresses such as
+	-- 12900332+user@example.com do start with digits.
 	local first_year, who
 	for pos, token in body:gmatch("()(%S+)") do
 		if token:match("^%d%d%d%d$") or token:match("^%d%d%d%d%-%d%d%d%d$") then

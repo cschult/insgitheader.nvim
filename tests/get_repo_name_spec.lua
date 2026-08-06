@@ -3,8 +3,8 @@ describe("get-repo-name", function()
 	local original_popen
 	local original_getenv
 
-	-- Baut einen io.popen-Mock aus einer Liste von {muster, antwort}-Paaren.
-	-- Das erste passende Muster gewinnt, ohne Treffer wird nil geliefert.
+	-- Builds an io.popen mock from a list of {pattern, answer} pairs.
+	-- The first matching pattern wins; without a match nil is returned.
 	local function popen_mock(rules)
 		return function(cmd)
 			local result
@@ -26,7 +26,7 @@ describe("get-repo-name", function()
 	before_each(function()
 		package.loaded["insgitheader.helper.get-repo-name"] = nil
 		package.loaded["insgitheader.helper.get-chezmoi"] = nil
-		-- Der chezmoi-Cache hängt an den Buffern, nicht am Modul
+		-- The chezmoi cache sits on the buffers, not on the module
 		vim._test.buffer_vars = {}
 		original_popen = io.popen
 		original_getenv = os.getenv
@@ -133,8 +133,8 @@ describe("get-repo-name", function()
 		end)
 
 		it("probiert es erneut wenn chezmoi nicht installiert ist", function()
-			-- Ein fehlgeschlagener Versuch wird bewusst nicht festgeschrieben:
-			-- chezmoi kann mitten in der Sitzung installiert werden.
+			-- A failed probe is deliberately not pinned down: chezmoi can be
+			-- installed in the middle of a session.
 			local calls = 0
 			io.popen = function(cmd)
 				if cmd:match("^chezmoi") then

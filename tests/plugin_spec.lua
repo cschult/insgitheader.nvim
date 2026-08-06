@@ -5,7 +5,7 @@ describe("plugin/insgitheader/init.lua", function()
 		dofile("plugin/insgitheader/init.lua")
 	end
 
-	-- Holt das registrierte Autocmd, das auf `event` hört.
+	-- Fetches the registered autocommand listening for `event`.
 	local function autocmd_for(event)
 		for _, entry in ipairs(vim._test.autocmds) do
 			local events = type(entry.event) == "table" and entry.event or { entry.event }

@@ -2,7 +2,7 @@ local M = {}
 
 local chezmoi = require("insgitheader.helper.get-chezmoi")
 
--- Liefert repo, is_chezmoi.
+-- Returns repo, is_chezmoi.
 function M.get_repo_name()
 	local vcsh_repo_name = os.getenv("VCSH_REPO_NAME")
 	if vcsh_repo_name then
@@ -12,9 +12,9 @@ function M.get_repo_name()
 
 	local bufname = vim.api.nvim_buf_get_name(0)
 
-	-- Vor Git fragen: Quelldateien liegen zwar in einem Git-Repo, sollen aber
-	-- trotzdem als chezmoi ausgewiesen werden, und Target-Dateien liegen in gar
-	-- keinem. Das Repo ist in beiden Fällen das des chezmoi-Source-Dirs.
+	-- Ask before git: source files do sit in a git repo but should still be
+	-- reported as chezmoi, and target files sit in none at all. In both cases
+	-- the repo is the one of the chezmoi source directory.
 	local is_chezmoi, chezmoi_repo = chezmoi.lookup(0)
 	if is_chezmoi then
 		return chezmoi_repo, true
